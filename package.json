@@ -1,0 +1,33 @@
+{
+  "name": "graphql-socketio-server",
+  "version": "1.0.0",
+  "main": "server.ts",
+  "scripts": {
+    "dev": "nodemon --watch src --ext ts --exec tsx -r tsconfig-paths/register src/server.ts",
+    "start": "tsx src/server.ts",
+    "generate": "graphql-codegen --config codegen.yml --overwrite"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "@apollo/server": "^4.12.2",
+    "@graphql-tools/schema": "^10.0.23",
+    "cors": "^2.8.5",
+    "dotenv": "^17.0.0",
+    "express": "^4.18.2",
+    "graphql": "^16.11.0",
+    "graphql-subscriptions": "^3.0.0",
+    "graphql-tag": "^2.12.6",
+    "graphql-ws": "^6.0.5",
+    "mongoose": "^8.16.1",
+    "socket.io": "^4.8.1",
+    "tsconfig-paths": "^4.2.0",
+    "ws": "^8.18.3"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.10",
+    "tsx": "^4.20.3"
+  }
+}
