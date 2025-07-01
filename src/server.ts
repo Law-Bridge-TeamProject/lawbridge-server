@@ -48,11 +48,11 @@ async function startServer() {
   });
   useServer({ schema }, wsServer);
 
-  const apolloServer = new ApolloServer({ schema });
+  const apolloServer = new ApolloServer({ schema, introspection: true });
   await apolloServer.start();
 
   app.use(cors());
-  app.use(express.json()); 
+  app.use(express.json());
   app.use(
     "/graphql",
     expressMiddleware(apolloServer, {
