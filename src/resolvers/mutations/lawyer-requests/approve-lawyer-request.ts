@@ -1,68 +1,79 @@
 import { MutationResolvers } from "@/types/generated";
 import { LawyerRequest, Lawyer, Specialization } from "@/models";
-import { clerkClient } from "@clerk/nextjs/server";
+import { clerkClient } from "@clerk/express";
 import mongoose from "mongoose";
 
 export const approveLawyerRequest: MutationResolvers["approveLawyerRequest"] =
   async (_, { lawyerId }) => {
-    const request = await LawyerRequest.findOne({ lawyerId });
+    const session = await mongoose.startSession();
 
-    if (!request) {
-      throw new Error("Lawyer request not found");
-    }
+    try {
+      await session.startTransaction();
 
-    const client = await clerkClient();
-    await client.users.updateUserMetadata(lawyerId, {
-      publicMetadata: {
-        role: "lawyer",
-        verified: true,
-      },
-    });
+      const request = await LawyerRequest.findOne({ lawyerId })
+        .session(session)
+        .exec();
 
-    interface RequestSpecialization {
-      categoryName: string;
-      subscription: boolean;
-      pricePerHour?: number | null;
-    }
+      if (!request) {
+        throw new Error("Lawyer request not found for the given lawyerId.");
+      }
 
-    interface LawyerRequestWithSpecializations {
-      specializations: RequestSpecialization[];
-    }
+      if (request.status !== "pending") {
+        throw new Error(
+          `This request has already been processed (status: ${request.status}).`
+        );
+      }
 
-    const specializationIds: (mongoose.Types.ObjectId | null)[] =
-      await Promise.all(
-        (request as LawyerRequestWithSpecializations).specializations.map(
-          async (
-            spec: RequestSpecialization
-          ): Promise<mongoose.Types.ObjectId | null> => {
-            const existingSpec = await Specialization.findOne({
-              categoryName: spec.categoryName,
-              subscription: spec.subscription,
-              pricePerHour: spec.pricePerHour ?? undefined,
-            });
-            return existingSpec ? existingSpec._id : null;
-          }
-        )
+      await clerkClient.users.updateUserMetadata(request.lawyerId, {
+        publicMetadata: {
+          role: "lawyer",
+          verified: true,
+        },
+      });
+
+      const specializationIds = await Promise.all(
+        request.specializations.map(async (spec) => {
+
+          const existingSpec = await Specialization.findOne({
+            categoryName: spec.categoryName,
+          })
+            .session(session)
+            .exec();
+          return existingSpec ? existingSpec._id : null;
+        })
       );
 
-    const filteredSpecializationIds = specializationIds.filter(
-      (id): id is mongoose.Types.ObjectId => id !== null
-    );
+      const filteredSpecializationIds = specializationIds.filter(
+        (id): id is mongoose.Types.ObjectId => id !== null
+      );
 
-    await Lawyer.create({
-      lawyerId: request.lawyerId,
-      firstName: request.firstName,
-      lastName: request.lastName,
-      email: request.email,
-      licenseNumber: request.licenseNumber,
-      bio: request.bio,
-      university: request.university,
-      profilePicture: request.profilePicture,
-      specializations: filteredSpecializationIds,
-    });
+      await Lawyer.create(
+        [
+          {
+            lawyerId: request.lawyerId,
+            firstName: request.firstName,
+            lastName: request.lastName,
+            email: request.email,
+            licenseNumber: request.licenseNumber,
+            bio: request.bio,
+            university: request.university,
+            profilePicture: request.profilePicture,
+            specializations: filteredSpecializationIds,
+          },
+        ],
+        { session } 
+      );
 
-    request.status = "approved";
-    await request.save();
+      request.status = "approved";
+      await request.save({ session }); 
 
-    return true;
+      await session.commitTransaction();
+      return true;
+    } catch (error) {
+      await session.abortTransaction();
+      console.error("Transaction aborted during approval:", error);
+      throw error;
+    } finally {
+      await session.endSession();
+    }
   };

@@ -1,4 +1,4 @@
-import { Schema, model, models } from "mongoose";
+import { Schema, model, models, Model } from "mongoose";
 
 type LawyerRequestSchemaType = {
   lawyerId: string;
@@ -68,5 +68,4 @@ const LawyerRequestSchema = new Schema<LawyerRequestSchemaType>(
   { timestamps: true }
 );
 
-export const LawyerRequest =
-  models.LawyerRequest || model("LawyerRequest", LawyerRequestSchema);
+export const LawyerRequest = (models.LawyerRequest as Model<LawyerRequestSchemaType>) || model<LawyerRequestSchemaType>("LawyerRequest", LawyerRequestSchema);
