@@ -2,11 +2,12 @@
 
 import { MutationResolvers } from "@/types/generated";
 import { Lawyer as LawyerModel } from "@/models";
+import { GraphQLContext } from "@/types/context";
 
 export const createLawyer: MutationResolvers["createLawyer"] = async (
   _,
   { input },
-  context
+  context: GraphQLContext
 ) => {
   // === THE ROBUST FIX: VALIDATE YOUR INPUT! ===
   // Check if the essential lawyerId is present.
@@ -15,7 +16,7 @@ export const createLawyer: MutationResolvers["createLawyer"] = async (
     throw new Error("A valid lawyerId is required to create a lawyer profile.");
   }
 
-  const lawyerId = context.lawyerId
+  const lawyerId = context.lawyerId;
 
   if (!lawyerId) {
     console.error("❌ context.userId not found");

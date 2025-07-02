@@ -5,7 +5,8 @@ generates:
     plugins:
       - typescript
       - typescript-resolvers
-    config:
-      contextType: Context
+    config: {
+        contextType: "@/types/context#GraphQLContext",
+      }
       makeResolverTypeCallable: true
       maybeValue: T
