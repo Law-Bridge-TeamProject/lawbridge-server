@@ -1,43 +1,57 @@
+// /resolvers/mutations/lawyer/create-lawyer.ts
+
 import { MutationResolvers } from "@/types/generated";
-import { Lawyer } from "@/models";
+import { Lawyer as LawyerModel } from "@/models";
 
 export const createLawyer: MutationResolvers["createLawyer"] = async (
   _,
   { input },
   context
 ) => {
-  const newLawyer = await Lawyer.create(input);
-
-  const populated = await Lawyer.findById(newLawyer._id)
-    .populate("specialization")
-    .populate("achievements")
-    .lean();
-
-  if (!populated) {
-    throw new Error("Lawyer not found");
+  // === THE ROBUST FIX: VALIDATE YOUR INPUT! ===
+  // Check if the essential lawyerId is present.
+  if (!input.lawyerId || input.lawyerId.trim() === "") {
+    // Throw a clear, user-friendly error immediately.
+    throw new Error("A valid lawyerId is required to create a lawyer profile.");
   }
 
-  const casted = {
-    ...populated,
-    id: populated._id.toString(),
-    specialization: Array.isArray(populated.specialization)
-      ? populated.specialization.map((s: any) => ({
-          id: s._id.toString(),
-          categoryName: s.categoryName,
-          subscription: s.subscription,
-          pricePerHour: s.pricePerHour,
-        }))
-      : [],
-    achievements: Array.isArray(populated.achievements)
-      ? populated.achievements.map((a: any) => ({
-          _id: a._id.toString(),
-          title: a.title,
-          description: a.description,
-          threshold: a.threshold,
-          icon: a.icon,
-        }))
-      : [],
-  };
+  const lawyerId = context.lawyerId
 
-  return casted;
+  if (!lawyerId) {
+    console.error("❌ context.userId not found");
+    throw new Error("Authentication required. Clerk userId missing.");
+  }
+
+  try {
+    const lawyerData = {
+      ...input,
+      lawyerId: lawyerId, // Ensure the correct field is being populated
+    };
+
+    const newLawyer = await LawyerModel.create(lawyerData); // Use the validated data
+
+    // ... rest of your successful creation logic (populate, toObject, etc.)
+    const populatedLawyer = await LawyerModel.findById(newLawyer._id)
+      .populate("specialization")
+      .populate("achievements")
+      .exec();
+
+    if (!populatedLawyer) {
+      throw new Error(
+        "Critical error: Failed to retrieve lawyer after creation."
+      );
+    }
+
+    return populatedLawyer.toObject() as any; // Using `as any` for brevity here, but your `as unknown as GqlLawyer` is better
+  } catch (error: any) {
+    console.error("--- Create Lawyer Resolver Failed ---", error);
+
+    if (error.code === 11000) {
+      throw new Error("A lawyer with this ID or email already exists.");
+    }
+
+    throw new Error(
+      "An internal server error occurred while creating the lawyer."
+    );
+  }
 };

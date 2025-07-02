@@ -38,7 +38,7 @@ const DocumentSchema = new Schema<DocumentSchemaType>(
     status: {
       type: String,
       enum: Object.values(ReviewStatus),
-      default: "PENDING",
+      default: ReviewStatus.PENDING,
     },
     reviewComment: { type: String },
   },
