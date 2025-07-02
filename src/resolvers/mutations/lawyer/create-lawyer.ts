@@ -2,25 +2,27 @@
 
 import { MutationResolvers } from "@/types/generated";
 import { Lawyer as LawyerModel } from "@/models";
-import { GraphQLContext } from "@/types/context";
 
 export const createLawyer: MutationResolvers["createLawyer"] = async (
   _,
   { input },
-  context: GraphQLContext
+  context
 ) => {
-  // === THE ROBUST FIX: VALIDATE YOUR INPUT! ===
-  // Check if the essential lawyerId is present.
-  if (!input.lawyerId || input.lawyerId.trim() === "") {
-    // Throw a clear, user-friendly error immediately.
-    throw new Error("A valid lawyerId is required to create a lawyer profile.");
-  }
-
-  const lawyerId = context.lawyerId;
+  // --- THIS IS THE CRITICAL FIX ---
+  // Always check for the required authentication data FIRST.
+  const lawyerId = context.lawyerId; // Or clerkUserId, depending on your context
 
   if (!lawyerId) {
-    console.error("❌ context.userId not found");
-    throw new Error("Authentication required. Clerk userId missing.");
+    // If there is no lawyerId, stop everything immediately.
+    // This prevents the code from ever reaching the database with null data.
+    throw new Error(
+      "Authentication failed: Lawyer ID is missing from context."
+    );
+  }
+
+  if (!lawyerId) {
+    console.error("❌ context.lawyerId not found");
+    throw new Error("Authentication required. Clerk lawyerId missing.");
   }
 
   try {

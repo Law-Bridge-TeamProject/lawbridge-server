@@ -25,7 +25,11 @@ export interface LawyerSchemaType {
 // === FIX #2: THE MONGOOSE SCHEMA CONFIGURATION ===
 const LawyerSchema = new Schema<LawyerSchemaType>(
   {
-    lawyerId: { type: String, required: true, unique: true },
+    lawyerId: {
+      type: String,
+      required: [true, "A Clerk User ID is required to create a lawyer."],
+      unique: true,
+    },
     firstName: { type: String, required: true },
     lastName: { type: String, required: true },
     email: { type: String, required: true, unique: true },

@@ -1,13 +1,16 @@
 // src/types/context.ts
-import { Request } from "express";
-import { Db } from "mongodb";
 
+import type { Request } from "express";
+import mongoose from "mongoose";
+
+// The name is now GraphQLContext and it is exported.
+// The `req` property is now optional and uses the correct Express type.
 export interface GraphQLContext {
-  req: Request;
+  req?: Request;
+  db: mongoose.mongo.Db;
   userId?: string;
   username?: string;
-  role?: "lawyer" | "user" | string;
+  role?: string;
   clientId?: string;
   lawyerId?: string;
-  db: Db;
 }
