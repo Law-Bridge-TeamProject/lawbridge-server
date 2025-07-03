@@ -1,39 +1,61 @@
+// src/graphql/resolvers/mutations/updatePost.ts
+
 import { Post } from "@/models";
 import { MutationResolvers } from "@/types/generated";
-import { ObjectId } from "mongodb";
+import { GraphQLError } from "graphql";
 
 export const updatePost: MutationResolvers["updatePost"] = async (
-  _: unknown,
+  _,
   { postId, input },
   context
 ) => {
   const { lawyerId } = context;
-  if (!lawyerId) throw new Error("Unauthorized: Lawyer not authenticated");
-
-  const post = await Post.findById(postId);
-  
-  if (!post) throw new Error("Post not found");
-  if (post.lawyerId !== lawyerId) throw new Error("Not authorized to update this post");
-  if (input.title !== undefined) post.title = input.title;
-  if (input.specialization !== undefined) {
-    post.specialization = input.specialization.map((s) => new ObjectId(s));
+  if (!lawyerId) {
+    throw new GraphQLError(
+      "Unauthorized: You must be logged in to update a post.",
+      {
+        extensions: { code: "UNAUTHENTICATED" },
+      }
+    );
   }
-  if (input.content !== undefined) post.content = input.content;
-  if (input.type !== undefined) post.type = input.type;
 
-  await post.save();
+  const postToUpdate = await Post.findById(postId);
 
-  return {
-    _id: post._id.toString(),
-    lawyerId: post.lawyerId,
-    title: post.title,
-    content: post.content,
-    specialization: post.specialization.map((s) => s.toString()),
-    type: post.type,
-    createdAt: post.createdAt,
-    updatedAt: post.updatedAt,
-  };
+  if (!postToUpdate) {
+    throw new GraphQLError("Post not found.", {
+      extensions: { code: "NOT_FOUND" },
+    });
+  }
+
+  if (postToUpdate.lawyerId.toString() !== lawyerId) {
+    throw new GraphQLError("Forbidden: You are not the owner of this post.", {
+      extensions: { code: "FORBIDDEN" },
+    });
+  }
+
+  try {
+    const updatedPost = await Post.findByIdAndUpdate(
+      postId,
+      { $set: input }, 
+      { new: true }
+    );
+
+    if (!updatedPost) {
+      throw new GraphQLError("Failed to update the post.", {
+        extensions: { code: "INTERNAL_SERVER_ERROR" },
+      });
+    }
+
+    await updatedPost.populate("specialization");
+
+    return updatedPost as any;
+  } catch (error) {
+    console.error("Error updating post:", error);
+    throw new GraphQLError(
+      "An internal error occurred while updating the post.",
+      {
+        extensions: { code: "INTERNAL_SERVER_ERROR" },
+      }
+    );
+  }
 };
-
-
-

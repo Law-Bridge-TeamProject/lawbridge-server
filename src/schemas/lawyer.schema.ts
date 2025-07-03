@@ -3,17 +3,26 @@ import { gql } from "graphql-tag";
 export const lawyerTypeDefs = gql`
   scalar Date
 
+  enum LawyerRequestStatus {
+    PENDING
+    VERIFIED
+    REJECTED
+  }
+
   type Lawyer {
-    id: ID!
+    _id: ID!
     lawyerId: ID!
+    clerkUserId: String
+    clientId: String
     firstName: String!
     lastName: String!
     email: String!
     licenseNumber: String!
     bio: String
-    university: String!
+    university: String
     specialization: [Specialization!]!
     achievements: [Achievement!]!
+    status: LawyerRequestStatus
     document: String
     rating: Int
     profilePicture: String!
@@ -28,7 +37,7 @@ export const lawyerTypeDefs = gql`
     email: String!
     licenseNumber: String!
     bio: String
-    university: String!
+    university: String
     specialization: [ID!]!
     achievements: [ID!]
     document: String
@@ -50,16 +59,23 @@ export const lawyerTypeDefs = gql`
     profilePicture: String
   }
 
+  input ManageLawyerRequestInput {
+    lawyerId: ID!
+    status: LawyerRequestStatus!
+  }
+
   type Query {
     getLawyers: [Lawyer!]!
     getLawyerById(lawyerId: ID!): Lawyer
     getLawyersBySpecialization(specializationId: ID!): [Lawyer!]!
     getLawyersByAchievement(achievementId: ID!): [Lawyer!]!
+    getLawyersByStatus(status: LawyerRequestStatus!): [Lawyer!]!
   }
 
   type Mutation {
     createLawyer(input: CreateLawyerInput!): Lawyer!
     updateLawyer(lawyerId: ID!, input: UpdateLawyerInput!): Lawyer!
     deleteLawyer(lawyerId: ID!): Boolean!
+    manageLawyerRequest(input: ManageLawyerRequestInput!): Lawyer!
   }
 `;

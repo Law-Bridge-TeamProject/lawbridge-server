@@ -2,19 +2,16 @@
 
 import { MutationResolvers } from "@/types/generated";
 import { Lawyer as LawyerModel } from "@/models";
+import { Context } from "@/types/context";
 
 export const createLawyer: MutationResolvers["createLawyer"] = async (
   _,
   { input },
-  context
+  context: Context
 ) => {
-  // --- THIS IS THE CRITICAL FIX ---
-  // Always check for the required authentication data FIRST.
-  const lawyerId = context.lawyerId; // Or clerkUserId, depending on your context
+  const lawyerId = context.lawyerId; 
 
   if (!lawyerId) {
-    // If there is no lawyerId, stop everything immediately.
-    // This prevents the code from ever reaching the database with null data.
     throw new Error(
       "Authentication failed: Lawyer ID is missing from context."
     );
@@ -28,12 +25,13 @@ export const createLawyer: MutationResolvers["createLawyer"] = async (
   try {
     const lawyerData = {
       ...input,
-      lawyerId: lawyerId, // Ensure the correct field is being populated
+      lawyerId: lawyerId,
+      clerkUserId: lawyerId,
+      clientId: lawyerId
     };
 
-    const newLawyer = await LawyerModel.create(lawyerData); // Use the validated data
+    const newLawyer = await LawyerModel.create(lawyerData);
 
-    // ... rest of your successful creation logic (populate, toObject, etc.)
     const populatedLawyer = await LawyerModel.findById(newLawyer._id)
       .populate("specialization")
       .populate("achievements")
@@ -45,7 +43,7 @@ export const createLawyer: MutationResolvers["createLawyer"] = async (
       );
     }
 
-    return populatedLawyer.toObject() as any; // Using `as any` for brevity here, but your `as unknown as GqlLawyer` is better
+    return populatedLawyer.toObject() as any; 
   } catch (error: any) {
     console.error("--- Create Lawyer Resolver Failed ---", error);
 

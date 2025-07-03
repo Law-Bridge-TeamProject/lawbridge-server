@@ -19,7 +19,7 @@ import { clerkClient } from "@clerk/express";
 import { typeDefs } from "./schemas";
 import { resolvers } from "./resolvers";
 import { Message } from "./models/message.model";
-import { GraphQLContext } from "./types/context";
+import { Context } from "./types/context";
 
 const schema = makeExecutableSchema({ typeDefs, resolvers });
 
@@ -59,14 +59,14 @@ async function startServer() {
   useServer(
     {
       schema,
-      context: async (ctx): Promise<GraphQLContext> => {
+      context: async (ctx): Promise<Context> => {
         console.log("--- New WebSocket Connection Attempt ---");
         const connectionParams = ctx.connectionParams || {};
         const authHeader = (connectionParams.Authorization ||
           connectionParams.authorization ||
           "") as string;
 
-        const baseContext: GraphQLContext = { db: mongoose.connection.db };
+        const baseContext: Context = { db: mongoose.connection.db };
 
         if (!authHeader.startsWith("Bearer ")) {
           console.warn("WebSocket connection without token. Closing.");
@@ -108,23 +108,28 @@ async function startServer() {
     wsServer
   );
 
-  const apolloServer = new ApolloServer<GraphQLContext>({
+  const apolloServer = new ApolloServer<Context>({
     schema,
     introspection: true,
   });
   await apolloServer.start();
 
-  app.use(cors());
+  app.use(
+    cors({
+      origin: "*", // эсвэл яг ашиглаж байгаа хостыг тодорхой зааж болно, жишээ нь "http://localhost:3000"
+      credentials: true,
+    })
+  );
   app.use(express.json());
 
   // --- This is the GraphQL HTTP Middleware. It will now work without errors. ---
   app.use(
     "/graphql",
     expressMiddleware(apolloServer, {
-      context: async ({ req }): Promise<GraphQLContext> => {
+      context: async ({ req }): Promise<Context> => {
         console.log("--- New HTTP Request ---");
         const authHeader = req.headers.authorization || "";
-        const baseContext: GraphQLContext = { req, db: mongoose.connection.db };
+        const baseContext: Context = { req, db: mongoose.connection.db };
 
         if (!authHeader.startsWith("Bearer ")) {
           console.log(

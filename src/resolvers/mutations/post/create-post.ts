@@ -1,5 +1,7 @@
 import { Post } from "@/models";
 import { MutationResolvers, MediaType } from "@/types/generated";
+import { Context } from "@/types/context";
+import { GraphQLError } from "graphql";
 
 export const createPost: MutationResolvers["createPost"] = async (
   _: unknown,
@@ -7,30 +9,38 @@ export const createPost: MutationResolvers["createPost"] = async (
   context
 ) => {
   const { lawyerId } = context;
-  if (!lawyerId) throw new Error("Unauthorized: Lawyer not authenticated");
+  if (!lawyerId) {
+    throw new GraphQLError(
+      "Unauthorized: You must be an authenticated lawyer to create a post.",
+      {
+        extensions: { code: "UNAUTHENTICATED" },
+      }
+    );
+  }
 
-  const newPost = await Post.create({
-    lawyerId,
-    title: input.title,
-    content: input.content,
-    specialization: input.specialization,
-    type: input.content.image
-      ? MediaType.Image
-      : input.content.video
-      ? MediaType.Video
-      : input.content.audio
-      ? MediaType.File // эсвэл өөрийн enum утга
-      : MediaType.Text,
-  });
+  let postType = MediaType.Text;
+  if (input.content.image) postType = MediaType.Image;
+  else if (input.content.video) postType = MediaType.Video;
+  else if (input.content.audio) postType = MediaType.Audio;
 
-  return {
-    _id: newPost._id.toString(), // ❗ GraphQL ID шаардлагад нийцүүлж string болгож байна
-    lawyerId: newPost.lawyerId.toString(),
-    title: newPost.title,
-    content: newPost.content,
-    specialization: newPost.specialization.map((id: any) => id.toString()),
-    type: newPost.type as MediaType,
-    createdAt: newPost.createdAt,
-    updatedAt: newPost.updatedAt,
-  };
+  try {
+    const newPost = await Post.create({
+      lawyerId,
+      title: input.title,
+      content: input.content,
+      specialization: input.specialization,
+      type: postType,
+    });
+
+    await newPost.populate("specialization");
+
+    return newPost as any;
+  } catch (error) {
+    console.error("Error creating post:", error);
+    throw new GraphQLError("Failed to create the post due to a server error.", {
+      extensions: {
+        code: "INTERNAL_SERVER_ERROR",
+      },
+    });
+  }
 };

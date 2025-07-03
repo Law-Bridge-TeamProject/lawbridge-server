@@ -1,3 +1,5 @@
+// src/graphql/typeDefs/notification.typeDefs.ts
+
 import { gql } from "graphql-tag";
 
 export const notificationTypeDefs = gql`
@@ -13,30 +15,38 @@ export const notificationTypeDefs = gql`
     SPECIALIZATION_UPDATE
   }
 
+  # Simplified Notification type, as it's a system alert to one person
   type Notification {
     id: ID!
-    lawyerId: String!
-    clientId: String
+    recipientId: ID! # The ID of the user (lawyer or client) who gets the notification
     type: NotificationType!
     content: String!
     read: Boolean!
+    relatedEntityId: ID
     createdAt: Date!
   }
 
+  # Input for creating a system notification
+  input CreateNotificationInput {
+    recipientId: ID!
+    type: NotificationType!
+    content: String!
+    relatedEntityId: ID
+  }
+
   extend type Query {
-    getNotifications(userId: ID!): [Notification!]!
-    getNotificationsClient(clientId: ID!): [Notification!]!
-    getNotificationsLawyer(lawyerId: ID!): [Notification!]!
+    # Gets notifications for the currently logged-in user (lawyer or client)
+    myNotifications: [Notification!]!
   }
 
   extend type Mutation {
-    createNotification(
-      lawyerId: ID!
-      clientId: ID
-      type: NotificationType!
-      content: String!
-    ): Notification!
+    # Internal-facing mutation to create a notification and send an email
+    createNotification(input: CreateNotificationInput!): Notification!
 
+    # Marks a single notification as read
     markNotificationAsRead(notificationId: ID!): Notification!
+
+    # Marks all unread notifications as read
+    markAllNotificationsAsRead: Boolean!
   }
 `;

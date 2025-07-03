@@ -6,6 +6,6 @@ generates:
       - typescript
       - typescript-resolvers
     config:
-      contextType: "@/types/context#GraphQLContext"
+      contextType: "@/types/context#Context"
       makeResolverTypeCallable: true
       maybeValue: T

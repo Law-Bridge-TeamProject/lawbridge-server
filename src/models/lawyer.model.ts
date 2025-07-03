@@ -2,11 +2,17 @@
 
 import { Schema, model, models, Model, Types } from "mongoose";
 
-// === FIX #1: THE TYPESCRIPT INTERFACE ===
-// The interface MUST include the optional fields that Mongoose adds at runtime.
+export enum VerifiedStatus {
+  PENDING = "PENDING",
+  VERIFIED = "VERIFIED",
+  REJECTED = "REJECTED",
+}
+
 export interface LawyerSchemaType {
-  id?: string; // For the virtual 'id'
+  id?: string;
   lawyerId: string;
+  clerkUserId: string;
+  clientId: string;
   firstName: string;
   lastName: string;
   email: string;
@@ -15,11 +21,12 @@ export interface LawyerSchemaType {
   university: string;
   specialization: Types.ObjectId[];
   achievements: Types.ObjectId[];
+  status: VerifiedStatus;
   document?: string;
   rating?: number;
   profilePicture: string;
-  createdAt?: Date; // For timestamps
-  updatedAt?: Date; // For timestamps
+  createdAt?: Date; 
+  updatedAt?: Date; 
 }
 
 // === FIX #2: THE MONGOOSE SCHEMA CONFIGURATION ===
@@ -30,24 +37,32 @@ const LawyerSchema = new Schema<LawyerSchemaType>(
       required: [true, "A Clerk User ID is required to create a lawyer."],
       unique: true,
     },
+    clerkUserId: { type: String, required: true, unique: true },
+    clientId: { type: String, required: true, unique: true },
     firstName: { type: String, required: true },
     lastName: { type: String, required: true },
     email: { type: String, required: true, unique: true },
     licenseNumber: { type: String, required: true },
-    // ... other fields
     specialization: [{ type: Schema.Types.ObjectId, ref: "Specialization" }],
     achievements: [{ type: Schema.Types.ObjectId, ref: "Achievement" }],
+    status: {
+      type: String,
+      enum: Object.values(VerifiedStatus),
+      default: VerifiedStatus.PENDING,
+      required: true,
+    },
+    university:{type: String, required: false},
+    document: { type: String, required: true },
+    rating:{type: Number,},
+    profilePicture: {type: String, required: true}
   },
   {
-    // This configuration is essential for virtuals to work correctly.
     timestamps: true,
     toJSON: { virtuals: true },
     toObject: { virtuals: true },
   }
 );
 
-// === FIX #3: THE VIRTUAL DEFINITION ===
-// This creates the 'id' field that GraphQL needs from the '_id' field.
 LawyerSchema.virtual("id").get(function () {
   return this._id.toHexString();
 });

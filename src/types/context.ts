@@ -5,7 +5,7 @@ import mongoose from "mongoose";
 
 // The name is now GraphQLContext and it is exported.
 // The `req` property is now optional and uses the correct Express type.
-export interface GraphQLContext {
+export interface Context {
   req?: Request;
   db: mongoose.mongo.Db;
   userId?: string;

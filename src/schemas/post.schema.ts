@@ -3,21 +3,40 @@ import { gql } from "graphql-tag";
 export const postTypeDefs = gql`
   scalar Date
 
-  enum Media {
+  enum MediaType {
     TEXT
-    VIDEO
     IMAGE
+    VIDEO
+    AUDIO
+    FILE # General file type
+  }
+
+  # This object type describes the *content* of the post
+  type PostContent {
+    text: String
+    image: String
+    video: String
+    audio: String
+  }
+
+  # This input type is used for creating the content
+  input PostContentInput {
+    text: String
+    image: String
+    video: String
+    audio: String
   }
 
   type Post {
     _id: ID!
-    lawyerId: String!
+    id: ID! # Virtual field
+    lawyerId: ID!
     title: String!
-    content: Media!
-    specialization: [String!]!
-    type: Media!
+    content: PostContent! # <-- FIX: This now correctly uses the object type
+    specialization: [Specialization!]!
+    type: MediaType! # <-- CORRECT: This remains an enum
     createdAt: Date!
-    updatedAt: Date!
+    updatedAt: Date
   }
 
   input MediaInput {
@@ -28,17 +47,15 @@ export const postTypeDefs = gql`
   }
 
   input CreatePostInput {
-    specialization: [String!]!
     title: String!
-    content: MediaInput!
-    type: Media!
+    content: PostContentInput!
+    specialization: [ID!]!
   }
 
   input UpdatePostInput {
-    specialization: [String!]
     title: String
-    content: MediaInput
-    type: Media
+    content: PostContentInput
+    specialization: [ID!]
   }
 
   type Query {
