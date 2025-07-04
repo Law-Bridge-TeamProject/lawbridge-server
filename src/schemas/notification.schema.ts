@@ -22,7 +22,6 @@ export const notificationTypeDefs = gql`
     type: NotificationType!
     content: String!
     read: Boolean!
-    relatedEntityId: ID
     createdAt: Date!
   }
 
@@ -31,7 +30,6 @@ export const notificationTypeDefs = gql`
     recipientId: ID!
     type: NotificationType!
     content: String!
-    relatedEntityId: ID
   }
 
   extend type Query {

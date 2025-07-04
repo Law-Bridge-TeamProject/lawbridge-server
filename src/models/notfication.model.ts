@@ -10,7 +10,6 @@ export type NotificationSchemaType = {
   type: NotificationType;
   content: string;
   read?: boolean;
-  relatedEntityId?: string; // e.g., an appointment ID or post ID
   createdAt?: Date;
   updatedAt?: Date;
 };
@@ -25,7 +24,6 @@ const NotificationSchema = new Schema<NotificationSchemaType>(
     },
     content: { type: String, required: true },
     read: { type: Boolean, default: false },
-    relatedEntityId: { type: String },
   },
   {
     timestamps: true,

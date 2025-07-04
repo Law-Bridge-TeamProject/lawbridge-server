@@ -124,22 +124,9 @@ export type CreateLawyerInput = {
   university?: InputMaybe<Scalars['String']['input']>;
 };
 
-export type CreateLawyerRequestInput = {
-  bio: Scalars['String']['input'];
-  documents?: InputMaybe<Scalars['String']['input']>;
-  email: Scalars['String']['input'];
-  firstName: Scalars['String']['input'];
-  lastName: Scalars['String']['input'];
-  licenseNumber: Scalars['String']['input'];
-  profilePicture: Scalars['String']['input'];
-  specializations: Array<CreateSpecializationInput>;
-  university: Scalars['String']['input'];
-};
-
 export type CreateNotificationInput = {
   content: Scalars['String']['input'];
   recipientId: Scalars['ID']['input'];
-  relatedEntityId?: InputMaybe<Scalars['ID']['input']>;
   type: NotificationType;
 };
 
@@ -215,28 +202,10 @@ export type Lawyer = {
   updatedAt?: Maybe<Scalars['Date']['output']>;
 };
 
-export type LawyerRequest = {
-  __typename?: 'LawyerRequest';
-  bio: Scalars['String']['output'];
-  createdAt: Scalars['Date']['output'];
-  documents?: Maybe<Scalars['String']['output']>;
-  email: Scalars['String']['output'];
-  firstName: Scalars['String']['output'];
-  id: Scalars['ID']['output'];
-  lastName: Scalars['String']['output'];
-  lawyerId: Scalars['ID']['output'];
-  licenseNumber: Scalars['String']['output'];
-  profilePicture: Scalars['String']['output'];
-  specializations: Array<Specialization>;
-  status: LawyerRequestStatus;
-  university: Scalars['String']['output'];
-  updatedAt: Scalars['Date']['output'];
-};
-
 export enum LawyerRequestStatus {
   Pending = 'PENDING',
   Rejected = 'REJECTED',
-  Verified = 'VERIFIED',
+  Verified = 'VERIFIED'
 }
 
 export type ManageLawyerRequestInput = {
@@ -269,7 +238,6 @@ export type Message = {
 
 export type Mutation = {
   __typename?: 'Mutation';
-  approveLawyerRequest: Scalars['Boolean']['output'];
   createAchievement: Achievement;
   createAppointment?: Maybe<Appointment>;
   createChatRoom?: Maybe<Scalars['String']['output']>;
@@ -277,7 +245,6 @@ export type Mutation = {
   createComment: Comment;
   createDocument: Document;
   createLawyer: Lawyer;
-  createLawyerRequest: LawyerRequest;
   createMessage?: Maybe<Message>;
   createNotification: Notification;
   createPost: Post;
@@ -292,7 +259,6 @@ export type Mutation = {
   manageLawyerRequest: Lawyer;
   markAllNotificationsAsRead: Scalars['Boolean']['output'];
   markNotificationAsRead: Notification;
-  rejectLawyerRequest: Scalars['Boolean']['output'];
   reviewDocument: Document;
   setAvailability?: Maybe<Availability>;
   updateAchievement: Achievement;
@@ -302,11 +268,6 @@ export type Mutation = {
   updatePost: Post;
   updateReview: Review;
   updateSpecialization: Specialization;
-};
-
-
-export type MutationApproveLawyerRequestArgs = {
-  lawyerId: Scalars['ID']['input'];
 };
 
 
@@ -342,11 +303,6 @@ export type MutationCreateDocumentArgs = {
 
 export type MutationCreateLawyerArgs = {
   input: CreateLawyerInput;
-};
-
-
-export type MutationCreateLawyerRequestArgs = {
-  input: CreateLawyerRequestInput;
 };
 
 
@@ -418,11 +374,6 @@ export type MutationMarkNotificationAsReadArgs = {
 };
 
 
-export type MutationRejectLawyerRequestArgs = {
-  lawyerId: Scalars['ID']['input'];
-};
-
-
 export type MutationReviewDocumentArgs = {
   input: ReviewDocumentInput;
 };
@@ -481,7 +432,6 @@ export type Notification = {
   id: Scalars['ID']['output'];
   read: Scalars['Boolean']['output'];
   recipientId: Scalars['ID']['output'];
-  relatedEntityId?: Maybe<Scalars['ID']['output']>;
   type: NotificationType;
 };
 
@@ -537,13 +487,11 @@ export type Query = {
   getDocumentsByStatus: Array<Document>;
   getDocumentsByUser: Array<Document>;
   getLawyerById?: Maybe<Lawyer>;
-  getLawyerRequestByLawyerId?: Maybe<LawyerRequest>;
   getLawyers: Array<Lawyer>;
   getLawyersByAchievement: Array<Lawyer>;
   getLawyersBySpecialization: Array<Lawyer>;
   getLawyersByStatus: Array<Lawyer>;
   getMessages: Array<Message>;
-  getPendingLawyerRequests: Array<LawyerRequest>;
   getPostById?: Maybe<Post>;
   getPostsByLawyer: Array<Post>;
   getPostsBySpecializationId: Array<Post>;
@@ -610,11 +558,6 @@ export type QueryGetDocumentsByUserArgs = {
 
 export type QueryGetLawyerByIdArgs = {
   lawyerId: Scalars['ID']['input'];
-};
-
-
-export type QueryGetLawyerRequestByLawyerIdArgs = {
-  lawyerId?: InputMaybe<Scalars['ID']['input']>;
 };
 
 
@@ -864,7 +807,6 @@ export type ResolversTypes = {
   CreateCommentInput: CreateCommentInput;
   CreateDocumentInput: CreateDocumentInput;
   CreateLawyerInput: CreateLawyerInput;
-  CreateLawyerRequestInput: CreateLawyerRequestInput;
   CreateNotificationInput: CreateNotificationInput;
   CreatePostInput: CreatePostInput;
   CreateReviewInput: CreateReviewInput;
@@ -877,7 +819,6 @@ export type ResolversTypes = {
   ID: ResolverTypeWrapper<Scalars['ID']['output']>;
   Int: ResolverTypeWrapper<Scalars['Int']['output']>;
   Lawyer: ResolverTypeWrapper<Lawyer>;
-  LawyerRequest: ResolverTypeWrapper<LawyerRequest>;
   LawyerRequestStatus: LawyerRequestStatus;
   ManageLawyerRequestInput: ManageLawyerRequestInput;
   MediaInput: MediaInput;
@@ -920,7 +861,6 @@ export type ResolversParentTypes = {
   CreateCommentInput: CreateCommentInput;
   CreateDocumentInput: CreateDocumentInput;
   CreateLawyerInput: CreateLawyerInput;
-  CreateLawyerRequestInput: CreateLawyerRequestInput;
   CreateNotificationInput: CreateNotificationInput;
   CreatePostInput: CreatePostInput;
   CreateReviewInput: CreateReviewInput;
@@ -931,7 +871,6 @@ export type ResolversParentTypes = {
   ID: Scalars['ID']['output'];
   Int: Scalars['Int']['output'];
   Lawyer: Lawyer;
-  LawyerRequest: LawyerRequest;
   ManageLawyerRequestInput: ManageLawyerRequestInput;
   MediaInput: MediaInput;
   Message: Message;
@@ -1040,24 +979,6 @@ export type LawyerResolvers<ContextType = Context, ParentType extends ResolversP
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
-export type LawyerRequestResolvers<ContextType = Context, ParentType extends ResolversParentTypes['LawyerRequest'] = ResolversParentTypes['LawyerRequest']> = {
-  bio?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  createdAt?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
-  documents?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-  email?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  firstName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
-  lastName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  lawyerId?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
-  licenseNumber?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  profilePicture?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  specializations?: Resolver<Array<ResolversTypes['Specialization']>, ParentType, ContextType>;
-  status?: Resolver<ResolversTypes['LawyerRequestStatus'], ParentType, ContextType>;
-  university?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  updatedAt?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
-};
-
 export type MessageResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Message'] = ResolversParentTypes['Message']> = {
   chatRoomId?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   content?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
@@ -1067,7 +988,6 @@ export type MessageResolvers<ContextType = Context, ParentType extends Resolvers
 };
 
 export type MutationResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = {
-  approveLawyerRequest?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationApproveLawyerRequestArgs, 'lawyerId'>>;
   createAchievement?: Resolver<ResolversTypes['Achievement'], ParentType, ContextType, RequireFields<MutationCreateAchievementArgs, 'input'>>;
   createAppointment?: Resolver<Maybe<ResolversTypes['Appointment']>, ParentType, ContextType, RequireFields<MutationCreateAppointmentArgs, 'input'>>;
   createChatRoom?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType, RequireFields<MutationCreateChatRoomArgs, 'appointmentId'>>;
@@ -1075,7 +995,6 @@ export type MutationResolvers<ContextType = Context, ParentType extends Resolver
   createComment?: Resolver<ResolversTypes['Comment'], ParentType, ContextType, RequireFields<MutationCreateCommentArgs, 'input'>>;
   createDocument?: Resolver<ResolversTypes['Document'], ParentType, ContextType, RequireFields<MutationCreateDocumentArgs, 'input'>>;
   createLawyer?: Resolver<ResolversTypes['Lawyer'], ParentType, ContextType, RequireFields<MutationCreateLawyerArgs, 'input'>>;
-  createLawyerRequest?: Resolver<ResolversTypes['LawyerRequest'], ParentType, ContextType, RequireFields<MutationCreateLawyerRequestArgs, 'input'>>;
   createMessage?: Resolver<Maybe<ResolversTypes['Message']>, ParentType, ContextType, RequireFields<MutationCreateMessageArgs, 'chatRoomId' | 'type' | 'userId'>>;
   createNotification?: Resolver<ResolversTypes['Notification'], ParentType, ContextType, RequireFields<MutationCreateNotificationArgs, 'input'>>;
   createPost?: Resolver<ResolversTypes['Post'], ParentType, ContextType, RequireFields<MutationCreatePostArgs, 'input'>>;
@@ -1090,7 +1009,6 @@ export type MutationResolvers<ContextType = Context, ParentType extends Resolver
   manageLawyerRequest?: Resolver<ResolversTypes['Lawyer'], ParentType, ContextType, RequireFields<MutationManageLawyerRequestArgs, 'input'>>;
   markAllNotificationsAsRead?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   markNotificationAsRead?: Resolver<ResolversTypes['Notification'], ParentType, ContextType, RequireFields<MutationMarkNotificationAsReadArgs, 'notificationId'>>;
-  rejectLawyerRequest?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationRejectLawyerRequestArgs, 'lawyerId'>>;
   reviewDocument?: Resolver<ResolversTypes['Document'], ParentType, ContextType, RequireFields<MutationReviewDocumentArgs, 'input'>>;
   setAvailability?: Resolver<Maybe<ResolversTypes['Availability']>, ParentType, ContextType, RequireFields<MutationSetAvailabilityArgs, 'day' | 'endTime' | 'lawyerId' | 'startTime'>>;
   updateAchievement?: Resolver<ResolversTypes['Achievement'], ParentType, ContextType, RequireFields<MutationUpdateAchievementArgs, 'input'>>;
@@ -1108,7 +1026,6 @@ export type NotificationResolvers<ContextType = Context, ParentType extends Reso
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   read?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   recipientId?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
-  relatedEntityId?: Resolver<Maybe<ResolversTypes['ID']>, ParentType, ContextType>;
   type?: Resolver<ResolversTypes['NotificationType'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
@@ -1147,13 +1064,11 @@ export type QueryResolvers<ContextType = Context, ParentType extends ResolversPa
   getDocumentsByStatus?: Resolver<Array<ResolversTypes['Document']>, ParentType, ContextType, RequireFields<QueryGetDocumentsByStatusArgs, 'status'>>;
   getDocumentsByUser?: Resolver<Array<ResolversTypes['Document']>, ParentType, ContextType, RequireFields<QueryGetDocumentsByUserArgs, 'userId'>>;
   getLawyerById?: Resolver<Maybe<ResolversTypes['Lawyer']>, ParentType, ContextType, RequireFields<QueryGetLawyerByIdArgs, 'lawyerId'>>;
-  getLawyerRequestByLawyerId?: Resolver<Maybe<ResolversTypes['LawyerRequest']>, ParentType, ContextType, Partial<QueryGetLawyerRequestByLawyerIdArgs>>;
   getLawyers?: Resolver<Array<ResolversTypes['Lawyer']>, ParentType, ContextType>;
   getLawyersByAchievement?: Resolver<Array<ResolversTypes['Lawyer']>, ParentType, ContextType, RequireFields<QueryGetLawyersByAchievementArgs, 'achievementId'>>;
   getLawyersBySpecialization?: Resolver<Array<ResolversTypes['Lawyer']>, ParentType, ContextType, RequireFields<QueryGetLawyersBySpecializationArgs, 'specializationId'>>;
   getLawyersByStatus?: Resolver<Array<ResolversTypes['Lawyer']>, ParentType, ContextType, RequireFields<QueryGetLawyersByStatusArgs, 'status'>>;
   getMessages?: Resolver<Array<ResolversTypes['Message']>, ParentType, ContextType, RequireFields<QueryGetMessagesArgs, 'chatRoomId'>>;
-  getPendingLawyerRequests?: Resolver<Array<ResolversTypes['LawyerRequest']>, ParentType, ContextType>;
   getPostById?: Resolver<Maybe<ResolversTypes['Post']>, ParentType, ContextType, RequireFields<QueryGetPostByIdArgs, 'postId'>>;
   getPostsByLawyer?: Resolver<Array<ResolversTypes['Post']>, ParentType, ContextType, RequireFields<QueryGetPostsByLawyerArgs, 'lawyerId'>>;
   getPostsBySpecializationId?: Resolver<Array<ResolversTypes['Post']>, ParentType, ContextType, RequireFields<QueryGetPostsBySpecializationIdArgs, 'specializationId'>>;
@@ -1198,7 +1113,6 @@ export type Resolvers<ContextType = Context> = {
   Date?: GraphQLScalarType;
   Document?: DocumentResolvers<ContextType>;
   Lawyer?: LawyerResolvers<ContextType>;
-  LawyerRequest?: LawyerRequestResolvers<ContextType>;
   Message?: MessageResolvers<ContextType>;
   Mutation?: MutationResolvers<ContextType>;
   Notification?: NotificationResolvers<ContextType>;
