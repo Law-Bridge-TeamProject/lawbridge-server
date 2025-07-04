@@ -17,12 +17,12 @@ export const notificationTypeDefs = gql`
 
   # Simplified Notification type, as it's a system alert to one person
   type Notification {
-    id: ID!
+    _id: ID
     recipientId: ID! # The ID of the user (lawyer or client) who gets the notification
     type: NotificationType!
     content: String!
-    read: Boolean!
-    createdAt: Date!
+    read: Boolean
+    createdAt: Date
   }
 
   # Input for creating a system notification
