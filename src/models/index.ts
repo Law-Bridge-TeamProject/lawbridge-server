@@ -11,3 +11,4 @@ export * from "./post.model";
 export * from "./review.model";
 export * from "./specialization.model";
 export * from "./document.model";
+export * from "./lawyer-specialization.model"

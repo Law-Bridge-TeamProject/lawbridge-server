@@ -9,6 +9,17 @@ export const lawyerTypeDefs = gql`
     REJECTED
   }
 
+  # type Specialization {
+  #   _id: ID!
+  #   categoryName: String!
+  # }
+
+  type Achievement {
+    _id: ID!
+    title: String!
+    description: String
+  }
+
   type Lawyer {
     _id: ID!
     lawyerId: ID!
@@ -20,7 +31,7 @@ export const lawyerTypeDefs = gql`
     licenseNumber: String!
     bio: String
     university: String
-    specialization: [Specialization!]!
+    # specialization: [Specialization!]!   # <<== Шинэ бүтэц
     achievements: [Achievement!]!
     status: LawyerRequestStatus
     document: String
@@ -28,6 +39,12 @@ export const lawyerTypeDefs = gql`
     profilePicture: String!
     createdAt: Date!
     updatedAt: Date
+  }
+
+  input LawyerSpecializationInput {
+    categoryId: ID! # Specialization ID
+    pricePerHour: Int
+    subscription: Boolean
   }
 
   input CreateLawyerInput {
@@ -38,7 +55,7 @@ export const lawyerTypeDefs = gql`
     licenseNumber: String!
     bio: String
     university: String
-    specialization: [ID!]!
+    # specialization: [LawyerSpecializationInput!]!  # <<== Шинэ input
     achievements: [ID!]
     document: String
     rating: Int
@@ -52,7 +69,7 @@ export const lawyerTypeDefs = gql`
     licenseNumber: String
     bio: String
     university: String
-    specialization: [ID!]
+    specialization: [LawyerSpecializationInput!]
     achievements: [ID!]
     document: String
     rating: Int

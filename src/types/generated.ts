@@ -120,7 +120,6 @@ export type CreateLawyerInput = {
   licenseNumber: Scalars['String']['input'];
   profilePicture: Scalars['String']['input'];
   rating?: InputMaybe<Scalars['Int']['input']>;
-  specialization: Array<Scalars['ID']['input']>;
   university?: InputMaybe<Scalars['String']['input']>;
 };
 
@@ -142,7 +141,8 @@ export type CreateReviewInput = {
 };
 
 export type CreateSpecializationInput = {
-  categoryName: SpecializationCategory;
+  categoryId: Scalars['ID']['input'];
+  lawyerId: Scalars['ID']['input'];
   pricePerHour?: InputMaybe<Scalars['Int']['input']>;
   subscription: Scalars['Boolean']['input'];
 };
@@ -196,7 +196,6 @@ export type Lawyer = {
   licenseNumber: Scalars['String']['output'];
   profilePicture: Scalars['String']['output'];
   rating?: Maybe<Scalars['Int']['output']>;
-  specialization: Array<Specialization>;
   status?: Maybe<LawyerRequestStatus>;
   university?: Maybe<Scalars['String']['output']>;
   updatedAt?: Maybe<Scalars['Date']['output']>;
@@ -207,6 +206,12 @@ export enum LawyerRequestStatus {
   Rejected = 'REJECTED',
   Verified = 'VERIFIED'
 }
+
+export type LawyerSpecializationInput = {
+  categoryId: Scalars['ID']['input'];
+  pricePerHour?: InputMaybe<Scalars['Int']['input']>;
+  subscription?: InputMaybe<Scalars['Boolean']['input']>;
+};
 
 export type ManageLawyerRequestInput = {
   lawyerId: Scalars['ID']['input'];
@@ -249,13 +254,12 @@ export type Mutation = {
   createNotification: Notification;
   createPost: Post;
   createReview: Review;
-  createSpecialization: Specialization;
+  createSpecialization: Array<Maybe<Specialization>>;
   deleteAchievement: Scalars['Boolean']['output'];
   deleteComment: Scalars['Boolean']['output'];
   deleteLawyer: Scalars['Boolean']['output'];
   deletePost: Scalars['Boolean']['output'];
   deleteReview: Scalars['Boolean']['output'];
-  deleteSpecialization: Scalars['Boolean']['output'];
   manageLawyerRequest: Lawyer;
   markAllNotificationsAsRead: Scalars['Boolean']['output'];
   markNotificationAsRead: Notification;
@@ -267,7 +271,6 @@ export type Mutation = {
   updateLawyer: Lawyer;
   updatePost: Post;
   updateReview: Review;
-  updateSpecialization: Specialization;
 };
 
 
@@ -330,7 +333,7 @@ export type MutationCreateReviewArgs = {
 
 
 export type MutationCreateSpecializationArgs = {
-  input: CreateSpecializationInput;
+  input?: InputMaybe<SpecializationInput>;
 };
 
 
@@ -356,11 +359,6 @@ export type MutationDeletePostArgs = {
 
 export type MutationDeleteReviewArgs = {
   reviewId: Scalars['ID']['input'];
-};
-
-
-export type MutationDeleteSpecializationArgs = {
-  categoryName: SpecializationCategory;
 };
 
 
@@ -417,12 +415,6 @@ export type MutationUpdatePostArgs = {
 export type MutationUpdateReviewArgs = {
   input: UpdateReviewInput;
   reviewId: Scalars['ID']['input'];
-};
-
-
-export type MutationUpdateSpecializationArgs = {
-  categoryName: SpecializationCategory;
-  input: UpdateSpecializationInput;
 };
 
 export type Notification = {
@@ -497,9 +489,7 @@ export type Query = {
   getPostsBySpecializationId: Array<Post>;
   getReviewsByLawyer: Array<Review>;
   getReviewsByUser: Array<Review>;
-  getSpecializationByCategory?: Maybe<Specialization>;
-  getSpecializations: Array<Specialization>;
-  getSpecializationsByLawyer: Array<Specialization>;
+  getSpecializations: Array<Maybe<Specialization>>;
   myNotifications: Array<Notification>;
   searchPosts: Array<Post>;
 };
@@ -606,20 +596,13 @@ export type QueryGetReviewsByUserArgs = {
 };
 
 
-export type QueryGetSpecializationByCategoryArgs = {
-  categoryName: SpecializationCategory;
-};
-
-
-export type QueryGetSpecializationsByLawyerArgs = {
-  lawyerId: Scalars['ID']['input'];
-  subscription?: InputMaybe<Scalars['Boolean']['input']>;
-};
-
-
 export type QuerySearchPostsArgs = {
   query: Scalars['String']['input'];
 };
+
+export enum Response {
+  Success = 'SUCCESS'
+}
 
 export type Review = {
   __typename?: 'Review';
@@ -646,25 +629,16 @@ export enum ReviewStatus {
 
 export type Specialization = {
   __typename?: 'Specialization';
-  categoryName: SpecializationCategory;
-  id: Scalars['ID']['output'];
+  _id: Scalars['ID']['output'];
+  categoryId: Scalars['ID']['output'];
+  lawyerId: Scalars['ID']['output'];
   pricePerHour?: Maybe<Scalars['Int']['output']>;
   subscription: Scalars['Boolean']['output'];
 };
 
-export enum SpecializationCategory {
-  Administrative = 'Administrative',
-  Civil = 'Civil',
-  Constitutional = 'Constitutional',
-  Criminal = 'Criminal',
-  Environmental = 'Environmental',
-  Family = 'Family',
-  Immigration = 'Immigration',
-  IntellectualProperty = 'IntellectualProperty',
-  Labor = 'Labor',
-  Property = 'Property',
-  Tax = 'Tax'
-}
+export type SpecializationInput = {
+  specializations: Array<CreateSpecializationInput>;
+};
 
 export type Subscription = {
   __typename?: 'Subscription';
@@ -706,7 +680,7 @@ export type UpdateLawyerInput = {
   licenseNumber?: InputMaybe<Scalars['String']['input']>;
   profilePicture?: InputMaybe<Scalars['String']['input']>;
   rating?: InputMaybe<Scalars['Int']['input']>;
-  specialization?: InputMaybe<Array<Scalars['ID']['input']>>;
+  specialization?: InputMaybe<Array<LawyerSpecializationInput>>;
   university?: InputMaybe<Scalars['String']['input']>;
 };
 
@@ -719,11 +693,6 @@ export type UpdatePostInput = {
 export type UpdateReviewInput = {
   comment?: InputMaybe<Scalars['String']['input']>;
   rating?: InputMaybe<Scalars['Int']['input']>;
-};
-
-export type UpdateSpecializationInput = {
-  pricePerHour?: InputMaybe<Scalars['Int']['input']>;
-  subscription?: InputMaybe<Scalars['Boolean']['input']>;
 };
 
 
@@ -820,6 +789,7 @@ export type ResolversTypes = {
   Int: ResolverTypeWrapper<Scalars['Int']['output']>;
   Lawyer: ResolverTypeWrapper<Lawyer>;
   LawyerRequestStatus: LawyerRequestStatus;
+  LawyerSpecializationInput: LawyerSpecializationInput;
   ManageLawyerRequestInput: ManageLawyerRequestInput;
   MediaInput: MediaInput;
   MediaType: MediaType;
@@ -831,11 +801,12 @@ export type ResolversTypes = {
   PostContent: ResolverTypeWrapper<PostContent>;
   PostContentInput: PostContentInput;
   Query: ResolverTypeWrapper<{}>;
+  Response: Response;
   Review: ResolverTypeWrapper<Review>;
   ReviewDocumentInput: ReviewDocumentInput;
   ReviewStatus: ReviewStatus;
   Specialization: ResolverTypeWrapper<Specialization>;
-  SpecializationCategory: SpecializationCategory;
+  SpecializationInput: SpecializationInput;
   String: ResolverTypeWrapper<Scalars['String']['output']>;
   Subscription: ResolverTypeWrapper<{}>;
   UpdateAchievementInput: UpdateAchievementInput;
@@ -844,7 +815,6 @@ export type ResolversTypes = {
   UpdateLawyerInput: UpdateLawyerInput;
   UpdatePostInput: UpdatePostInput;
   UpdateReviewInput: UpdateReviewInput;
-  UpdateSpecializationInput: UpdateSpecializationInput;
 };
 
 /** Mapping between all available schema types and the resolvers parents */
@@ -871,6 +841,7 @@ export type ResolversParentTypes = {
   ID: Scalars['ID']['output'];
   Int: Scalars['Int']['output'];
   Lawyer: Lawyer;
+  LawyerSpecializationInput: LawyerSpecializationInput;
   ManageLawyerRequestInput: ManageLawyerRequestInput;
   MediaInput: MediaInput;
   Message: Message;
@@ -883,6 +854,7 @@ export type ResolversParentTypes = {
   Review: Review;
   ReviewDocumentInput: ReviewDocumentInput;
   Specialization: Specialization;
+  SpecializationInput: SpecializationInput;
   String: Scalars['String']['output'];
   Subscription: {};
   UpdateAchievementInput: UpdateAchievementInput;
@@ -891,7 +863,6 @@ export type ResolversParentTypes = {
   UpdateLawyerInput: UpdateLawyerInput;
   UpdatePostInput: UpdatePostInput;
   UpdateReviewInput: UpdateReviewInput;
-  UpdateSpecializationInput: UpdateSpecializationInput;
 };
 
 export type AchievementResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Achievement'] = ResolversParentTypes['Achievement']> = {
@@ -972,7 +943,6 @@ export type LawyerResolvers<ContextType = Context, ParentType extends ResolversP
   licenseNumber?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   profilePicture?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   rating?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
-  specialization?: Resolver<Array<ResolversTypes['Specialization']>, ParentType, ContextType>;
   status?: Resolver<Maybe<ResolversTypes['LawyerRequestStatus']>, ParentType, ContextType>;
   university?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   updatedAt?: Resolver<Maybe<ResolversTypes['Date']>, ParentType, ContextType>;
@@ -999,13 +969,12 @@ export type MutationResolvers<ContextType = Context, ParentType extends Resolver
   createNotification?: Resolver<ResolversTypes['Notification'], ParentType, ContextType, RequireFields<MutationCreateNotificationArgs, 'input'>>;
   createPost?: Resolver<ResolversTypes['Post'], ParentType, ContextType, RequireFields<MutationCreatePostArgs, 'input'>>;
   createReview?: Resolver<ResolversTypes['Review'], ParentType, ContextType, RequireFields<MutationCreateReviewArgs, 'input'>>;
-  createSpecialization?: Resolver<ResolversTypes['Specialization'], ParentType, ContextType, RequireFields<MutationCreateSpecializationArgs, 'input'>>;
+  createSpecialization?: Resolver<Array<Maybe<ResolversTypes['Specialization']>>, ParentType, ContextType, Partial<MutationCreateSpecializationArgs>>;
   deleteAchievement?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteAchievementArgs, 'id'>>;
   deleteComment?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteCommentArgs, 'input'>>;
   deleteLawyer?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteLawyerArgs, 'lawyerId'>>;
   deletePost?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeletePostArgs, 'postId'>>;
   deleteReview?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteReviewArgs, 'reviewId'>>;
-  deleteSpecialization?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteSpecializationArgs, 'categoryName'>>;
   manageLawyerRequest?: Resolver<ResolversTypes['Lawyer'], ParentType, ContextType, RequireFields<MutationManageLawyerRequestArgs, 'input'>>;
   markAllNotificationsAsRead?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   markNotificationAsRead?: Resolver<ResolversTypes['Notification'], ParentType, ContextType, RequireFields<MutationMarkNotificationAsReadArgs, 'notificationId'>>;
@@ -1017,7 +986,6 @@ export type MutationResolvers<ContextType = Context, ParentType extends Resolver
   updateLawyer?: Resolver<ResolversTypes['Lawyer'], ParentType, ContextType, RequireFields<MutationUpdateLawyerArgs, 'input' | 'lawyerId'>>;
   updatePost?: Resolver<ResolversTypes['Post'], ParentType, ContextType, RequireFields<MutationUpdatePostArgs, 'input' | 'postId'>>;
   updateReview?: Resolver<ResolversTypes['Review'], ParentType, ContextType, RequireFields<MutationUpdateReviewArgs, 'input' | 'reviewId'>>;
-  updateSpecialization?: Resolver<ResolversTypes['Specialization'], ParentType, ContextType, RequireFields<MutationUpdateSpecializationArgs, 'categoryName' | 'input'>>;
 };
 
 export type NotificationResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Notification'] = ResolversParentTypes['Notification']> = {
@@ -1074,9 +1042,7 @@ export type QueryResolvers<ContextType = Context, ParentType extends ResolversPa
   getPostsBySpecializationId?: Resolver<Array<ResolversTypes['Post']>, ParentType, ContextType, RequireFields<QueryGetPostsBySpecializationIdArgs, 'specializationId'>>;
   getReviewsByLawyer?: Resolver<Array<ResolversTypes['Review']>, ParentType, ContextType, RequireFields<QueryGetReviewsByLawyerArgs, 'lawyerId'>>;
   getReviewsByUser?: Resolver<Array<ResolversTypes['Review']>, ParentType, ContextType, RequireFields<QueryGetReviewsByUserArgs, 'clientId'>>;
-  getSpecializationByCategory?: Resolver<Maybe<ResolversTypes['Specialization']>, ParentType, ContextType, RequireFields<QueryGetSpecializationByCategoryArgs, 'categoryName'>>;
-  getSpecializations?: Resolver<Array<ResolversTypes['Specialization']>, ParentType, ContextType>;
-  getSpecializationsByLawyer?: Resolver<Array<ResolversTypes['Specialization']>, ParentType, ContextType, RequireFields<QueryGetSpecializationsByLawyerArgs, 'lawyerId'>>;
+  getSpecializations?: Resolver<Array<Maybe<ResolversTypes['Specialization']>>, ParentType, ContextType>;
   myNotifications?: Resolver<Array<ResolversTypes['Notification']>, ParentType, ContextType>;
   searchPosts?: Resolver<Array<ResolversTypes['Post']>, ParentType, ContextType, RequireFields<QuerySearchPostsArgs, 'query'>>;
 };
@@ -1093,8 +1059,9 @@ export type ReviewResolvers<ContextType = Context, ParentType extends ResolversP
 };
 
 export type SpecializationResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Specialization'] = ResolversParentTypes['Specialization']> = {
-  categoryName?: Resolver<ResolversTypes['SpecializationCategory'], ParentType, ContextType>;
-  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  _id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  categoryId?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  lawyerId?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   pricePerHour?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
   subscription?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;

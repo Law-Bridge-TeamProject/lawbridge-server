@@ -25,8 +25,8 @@ export interface LawyerSchemaType {
   document?: string;
   rating?: number;
   profilePicture: string;
-  createdAt?: Date; 
-  updatedAt?: Date; 
+  createdAt?: Date;
+  updatedAt?: Date;
 }
 
 // === FIX #2: THE MONGOOSE SCHEMA CONFIGURATION ===
@@ -43,7 +43,10 @@ const LawyerSchema = new Schema<LawyerSchemaType>(
     lastName: { type: String, required: true },
     email: { type: String, required: true, unique: true },
     licenseNumber: { type: String, required: true },
-    specialization: [{ type: Schema.Types.ObjectId, ref: "Specialization" }],
+    specialization: [
+      { type: Schema.Types.ObjectId, ref: "LawyerSpecialization" },
+    ],
+    // category
     achievements: [{ type: Schema.Types.ObjectId, ref: "Achievement" }],
     status: {
       type: String,
@@ -51,10 +54,10 @@ const LawyerSchema = new Schema<LawyerSchemaType>(
       default: VerifiedStatus.PENDING,
       required: true,
     },
-    university:{type: String, required: false},
+    university: { type: String, required: false },
     document: { type: String, required: true },
-    rating:{type: Number,},
-    profilePicture: {type: String, required: true}
+    rating: { type: Number },
+    profilePicture: { type: String, required: true },
   },
   {
     timestamps: true,

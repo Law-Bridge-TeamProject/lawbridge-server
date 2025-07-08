@@ -10,7 +10,6 @@ import { makeExecutableSchema } from "@graphql-tools/schema";
 import { useServer } from "graphql-ws/use/ws";
 import { WebSocketServer } from "ws";
 import { Server as SocketIOServer } from "socket.io";
-import { GraphQLError } from "graphql";
 
 import { clerkClient, getAuth } from "@clerk/express";
 import { verifyToken } from "@clerk/backend";
