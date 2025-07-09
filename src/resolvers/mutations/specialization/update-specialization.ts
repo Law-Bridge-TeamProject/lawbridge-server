@@ -1,28 +1,32 @@
-// import { SpecializationCategory } from "@/types/generated";
-// import { MutationResolvers } from "@/types/generated";
-// import { Specialization } from "@/models";
+// resolvers/lawyerSpecialization/updateSpecialization.ts
+import { LawyerSpecialization } from "@/models";
+import { MutationResolvers } from "@/types/generated";
+import { GraphQLError } from "graphql";
 
-// export const updateSpecialization: MutationResolvers["updateSpecialization"] = async (
-//   _,
-//   { categoryName, input }
-// ) => {
-//   const specialization = await Specialization.findOne({ categoryName });
+export const updateSpecialization: MutationResolvers["updateSpecialization"] =
+  async (_, { specializationId, input }) => {
+    try {
+      const updated = await LawyerSpecialization.findByIdAndUpdate(
+        specializationId,
+        {
+          subscription: input.subscription,
+          pricePerHour: input.pricePerHour,
+        },
+        { new: true }
+      );
 
-//   if (!specialization) throw new Error("Specialization not found");
+      if (!updated) {
+        throw new GraphQLError("Specialization not found");
+      }
 
-//   if (input.subscription !== undefined) {
-//     specialization.subscription = input.subscription;
-//   }
-//   if (input.pricePerHour !== undefined) {
-//     specialization.pricePerHour = input.pricePerHour;
-//   }
-
-//   await specialization.save();
-
-//   return {
-//     id: specialization._id.toString(),
-//     categoryName: categoryName as SpecializationCategory,
-//     subscription: specialization.subscription,
-//     pricePerHour: specialization.pricePerHour ?? undefined,
-//   };
-// };
+      return {
+        _id: updated._id.toString(),
+        lawyerId: updated.lawyerId.toString(),
+        specializationId: updated.specializationId.toString(),
+        subscription: updated.subscription,
+        pricePerHour: updated.pricePerHour,
+      };
+    } catch (error) {
+      throw new GraphQLError("Failed to update specialization");
+    }
+  };

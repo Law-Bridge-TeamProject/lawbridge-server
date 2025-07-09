@@ -7,7 +7,7 @@ import { lawyerTypeDefs } from "./lawyer.schema";
 import { commentTypeDefs } from "./comment.schema";
 import { notificationTypeDefs } from "./notification.schema";
 import { reviewsTypeDefs } from "./review.schema";
-// import { specializationTypedefs } from "./specialization.schema";
+import { specializationTypedefs } from "./specialization.schema";
 import { postTypeDefs } from "./post.schema";
 import { achievementTypeDefs } from "./achievements.schema";
 import { lawyerSpecializationTypeDefs } from "./lawyer-specialization.schema";
@@ -15,7 +15,7 @@ import { lawyerSpecializationTypeDefs } from "./lawyer-specialization.schema";
 export const typeDefs = [
   achievementTypeDefs,
   lawyerTypeDefs,
-  // specializationTypedefs,
+  specializationTypedefs,
   commentTypeDefs,
   reviewsTypeDefs,
   notificationTypeDefs,

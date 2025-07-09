@@ -1,13 +1,17 @@
-// import { LawyerSpecialization, Specialization } from "@/models";
-// import { QueryResolvers } from "@/types/generated";
-// import { GraphQLError } from "graphql";
+import { Specialization } from "@/models";
+import { QueryResolvers } from "@/types/generated";
+import { GraphQLError } from "graphql";
 
-// export const getSpecializations: QueryResolvers["getSpecializations"] =
-//   async () => {
-//     try {
-//       const specialization = await LawyerSpecialization.find();
-//       return specialization;
-//     } catch (error) {
-//       throw new GraphQLError(error);
-//     }
-//   };
+export const getAdminSpecializations: QueryResolvers["getAdminSpecializations"] =
+  async () => {
+    try {
+      const specializations = await (Specialization as any).find();
+
+      return specializations.map((s) => ({
+        id: s._id.toString(),
+        categoryName: s.categoryName,
+      }));
+    } catch (error: any) {
+      throw new GraphQLError(`Failed to fetch specializations: ${error.message}`);
+    }
+  };

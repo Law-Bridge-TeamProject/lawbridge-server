@@ -1,4 +1,8 @@
-import { MutationResolvers, Appointment as AppointmentType, AppointmentStatus } from "@/types/generated";
+import {
+  MutationResolvers,
+  Appointment as AppointmentType,
+  AppointmentStatus,
+} from "@/types/generated";
 import { Appointment } from "@/models";
 
 export const createAppointment: MutationResolvers["createAppointment"] = async (
@@ -10,10 +14,13 @@ export const createAppointment: MutationResolvers["createAppointment"] = async (
     const { clientId, lawyerId, schedule } = input;
 
     const appointmentDoc = await Appointment.create({
-      clientId: clientId,
+      clientId: context.clientId,
       lawyerId,
       schedule: new Date(schedule),
       status: "PENDING",
+      price: 0,
+      isFree: false,
+      specializationId: [],
     });
 
     const appointment: AppointmentType = {
@@ -21,6 +28,8 @@ export const createAppointment: MutationResolvers["createAppointment"] = async (
       clientId: appointmentDoc.clientId.toString(),
       schedule: appointmentDoc.schedule,
       status: appointmentDoc.status as unknown as AppointmentStatus.Pending,
+      isFree: false,
+      specializationId:null
     };
 
     return appointment;

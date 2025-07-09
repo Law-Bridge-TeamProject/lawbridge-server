@@ -20,7 +20,7 @@ export const getMessages: QueryResolvers["getMessages"] = async (
     .sort({ createdAt: -1 })
     .toArray();
 
-    await Message.find({ chatRoomId }).sort({ createdAt: -1 });
+  await Message.find({ chatRoomId }).sort({ createdAt: -1 });
 
   return messages.map((msg: MessageFromDB) => ({
     id: msg._id.toString(),

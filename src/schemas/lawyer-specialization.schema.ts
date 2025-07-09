@@ -1,21 +1,18 @@
+// typeDefs/lawyerSpecialization.ts
 import { gql } from "graphql-tag";
 
 export const lawyerSpecializationTypeDefs = gql`
-  enum Response {
-    SUCCESS
-  }
-
   type Specialization {
     _id: ID!
     lawyerId: ID!
-    categoryId: ID!
+    specializationId: ID!
     subscription: Boolean!
     pricePerHour: Int
   }
 
   input CreateSpecializationInput {
     lawyerId: ID!
-    categoryId: ID!
+    specializationId: ID!
     subscription: Boolean!
     pricePerHour: Int
   }
@@ -24,12 +21,21 @@ export const lawyerSpecializationTypeDefs = gql`
     specializations: [CreateSpecializationInput!]!
   }
 
-  # type Query {
-  #   getSpecializations: [Specialization]!
-  # neg umguulugchiin mergeshsen chigleluud
-  # }
+  input UpdateSpecializationInput {
+    subscription: Boolean!
+    pricePerHour: Int
+  }
+
+  type Query {
+    getSpecializationsByLawyer(lawyerId: ID!): [Specialization!]!
+  }
 
   type Mutation {
     createSpecialization(input: SpecializationInput): [Specialization]!
+    deleteSpecialization(specializationId: ID!): Boolean!
+    updateSpecialization(
+      specializationId: ID!
+      input: UpdateSpecializationInput!
+    ): Specialization!
   }
 `;

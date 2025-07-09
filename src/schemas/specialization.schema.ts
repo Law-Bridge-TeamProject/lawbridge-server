@@ -1,38 +1,22 @@
-// import { gql } from "graphql-tag";
+import { gql } from "graphql-tag";
 
-// export const specializationTypedefs = gql`
+export const specializationTypedefs = gql`
+  type AdminSpecialization {
+    id: ID!
+    categoryName: String!
+  }
 
+  input AdminCreateSpecializationInput {
+    categoryName: String!
+  }
 
+  type Query {
+    getAdminSpecializations: [AdminSpecialization!]!
+  }
 
-//   # type Specialization {
-//   #   lawyerId: ID!
-//   #   categoryID: ID!
-//   #   subs: Boolean!
-//   #   price: Int
-//   #  }
-
-//   # input CreateSpecializationInput {
-//   #   lawyerId: ID!
-//   #   categoryID: ID!
-//   #   subs: Boolean!
-//   #   price: Int
-//   # }
-
-  
-//   type Query {
-//   # getSpecializations: [Specialization!]!
-//   # getSpecializationByCategory(categoryName: SpecializationCategory!): Specialization
-//   # getSpecializationsByLawyer(
-//   #   lawyerId: ID!
-//   #   subscription: Boolean
-//   # ): [Specialization!]!
-// }
-
-
-//   type Mutation {
-//     # createSpecialization(input: [CreateSpecializationInput!]!): Response!
-//     # updateSpecialization(categoryName: SpecializationCategory!, input: UpdateSpecializationInput!): Specialization!
-//     # deleteSpecialization(categoryName: SpecializationCategory!): Boolean!
-//   }
-// `;
-// // return Response.Success;
+  type Mutation {
+    adminCreateSpecialization(
+      input: AdminCreateSpecializationInput!
+    ): AdminSpecialization!
+  }
+`;

@@ -1,8 +1,7 @@
-export * from "./create-appointment";
-export * from "./create-chat-room";
-export * from "./update-chat-room";
-export * from "./create-message";
-export * from "./set-availability";
+export * from "./appointment/create-appointment";
+export * from "./chat-room";
+export * from "./message";
+export * from "./availability";
 export * from "./achievement";
 export * from "./document";
 export * from "./comment";
@@ -11,3 +10,4 @@ export * from "./review";
 export * from "./specialization";
 export * from "./lawyer"
 export * from "./notification"
+export * from "./appointment"

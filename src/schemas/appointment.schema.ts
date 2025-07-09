@@ -1,4 +1,4 @@
-import { gql } from 'graphql-tag';
+import { gql } from "graphql-tag";
 
 export const appointmentTypeDefs = gql`
   type Appointment {
@@ -7,22 +7,27 @@ export const appointmentTypeDefs = gql`
     schedule: String!
     status: AppointmentStatus!
     chatRoomId: String
+    price: Int
+    isFree: Boolean!
+    specializationId: String!
     createdAt: String
-    updatedAt: String
+    endedAt: String
   }
 
   enum AppointmentStatus {
     PENDING
-    CONFIRMED
     COMPLETED
-    CANCELLED
   }
 
   input CreateAppointmentInput {
     clientId: String!
     lawyerId: String!
     schedule: String!
+    createdAt: String!
+    endedAt: String!
   }
+
+  
 
   type Query {
     getAppointments: [Appointment]
@@ -36,6 +41,3 @@ export const appointmentTypeDefs = gql`
     createChatRoom(appointmentId: String!): String
   }
 `;
-
-
-  

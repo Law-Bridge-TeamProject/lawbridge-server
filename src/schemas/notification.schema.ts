@@ -4,13 +4,11 @@ export const notificationTypeDefs = gql`
   scalar Date
 
   enum NotificationType {
-    APPOINTMENT_REQUEST
-    APPOINTMENT_CONFIRMATION
-    APPOINTMENT_CANCELLATION
+    LAWYER_APPROVED
+    APPOINTMENT_CREATED
     APPOINTMENT_REMINDER
     APPOINTMENT_STARTED
     REVIEW_RECEIVED
-    SPECIALIZATION_UPDATE
   }
 
   type Notification {

@@ -13,6 +13,12 @@ type AppointmentSchemaType = {
   schedule: string;
   status: AppointmentStatus;
   chatRoomId?: Types.ObjectId;
+  price: number;
+  isFree: boolean;
+  specializationId: Types.ObjectId;
+  createdAt: Date;
+  updatedAt: Date;
+  endedAt: Date;
 };
 
 const AppointmentSchema = new Schema<AppointmentSchemaType>(
@@ -27,6 +33,13 @@ const AppointmentSchema = new Schema<AppointmentSchemaType>(
       required: true,
     },
     chatRoomId: { type: Schema.Types.ObjectId, ref: "ChatRoom" },
+    price: { type: Number },
+    isFree: { type: Boolean, required: true },
+    specializationId: {
+      type: Schema.Types.ObjectId,
+      ref: "Specialization",
+      required: true,
+    },
   },
   { timestamps: true }
 );
