@@ -102,6 +102,7 @@ export type CreateAppointmentInput = {
   endedAt: Scalars['String']['input'];
   lawyerId: Scalars['String']['input'];
   schedule: Scalars['String']['input'];
+  specializationId: Scalars['String']['input'];
 };
 
 export type CreateChatRoomInput = {
@@ -467,6 +468,13 @@ export enum NotificationType {
   ReviewReceived = 'REVIEW_RECEIVED'
 }
 
+export type NotificationsFilterInput = {
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  read?: InputMaybe<Scalars['Boolean']['input']>;
+  type?: InputMaybe<NotificationType>;
+};
+
 export type Post = {
   __typename?: 'Post';
   _id: Scalars['ID']['output'];
@@ -522,6 +530,7 @@ export type Query = {
   getReviewsByUser: Array<Review>;
   getSpecializationsByLawyer: Array<Specialization>;
   myNotifications: Array<Notification>;
+  notificationCount: Scalars['Int']['output'];
   searchPosts: Array<Post>;
 };
 
@@ -629,6 +638,16 @@ export type QueryGetReviewsByUserArgs = {
 
 export type QueryGetSpecializationsByLawyerArgs = {
   lawyerId: Scalars['ID']['input'];
+};
+
+
+export type QueryMyNotificationsArgs = {
+  filter?: InputMaybe<NotificationsFilterInput>;
+};
+
+
+export type QueryNotificationCountArgs = {
+  unreadOnly?: InputMaybe<Scalars['Boolean']['input']>;
 };
 
 
@@ -836,6 +855,7 @@ export type ResolversTypes = {
   Mutation: ResolverTypeWrapper<{}>;
   Notification: ResolverTypeWrapper<Notification>;
   NotificationType: NotificationType;
+  NotificationsFilterInput: NotificationsFilterInput;
   Post: ResolverTypeWrapper<Post>;
   PostContent: ResolverTypeWrapper<PostContent>;
   PostContentInput: PostContentInput;
@@ -888,6 +908,7 @@ export type ResolversParentTypes = {
   Message: Message;
   Mutation: {};
   Notification: Notification;
+  NotificationsFilterInput: NotificationsFilterInput;
   Post: Post;
   PostContent: PostContent;
   PostContentInput: PostContentInput;
@@ -1098,7 +1119,8 @@ export type QueryResolvers<ContextType = Context, ParentType extends ResolversPa
   getReviewsByLawyer?: Resolver<Array<ResolversTypes['Review']>, ParentType, ContextType, RequireFields<QueryGetReviewsByLawyerArgs, 'lawyerId'>>;
   getReviewsByUser?: Resolver<Array<ResolversTypes['Review']>, ParentType, ContextType, RequireFields<QueryGetReviewsByUserArgs, 'clientId'>>;
   getSpecializationsByLawyer?: Resolver<Array<ResolversTypes['Specialization']>, ParentType, ContextType, RequireFields<QueryGetSpecializationsByLawyerArgs, 'lawyerId'>>;
-  myNotifications?: Resolver<Array<ResolversTypes['Notification']>, ParentType, ContextType>;
+  myNotifications?: Resolver<Array<ResolversTypes['Notification']>, ParentType, ContextType, Partial<QueryMyNotificationsArgs>>;
+  notificationCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType, Partial<QueryNotificationCountArgs>>;
   searchPosts?: Resolver<Array<ResolversTypes['Post']>, ParentType, ContextType, RequireFields<QuerySearchPostsArgs, 'query'>>;
 };
 

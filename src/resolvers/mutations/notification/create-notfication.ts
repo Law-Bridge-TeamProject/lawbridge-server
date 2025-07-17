@@ -1,19 +1,28 @@
-import { NotificationService } from "@/services";
-import { Context } from "@/types/context";
+// ===== resolvers/notification.ts =====
+import { Notification } from "@/models";
 import { MutationResolvers } from "@/types/generated";
-import { GraphQLError } from "graphql";
+import { io } from "@/server";
 
-export const createNotification: MutationResolvers<Context>['createNotification'] = async (_, { input }, context) => {
-  // 1. Correctly get userId from the context
-  const { userId } = context;
+export const createNotification: MutationResolvers["createNotification"] =
+  async (_, { input }) => {
+    const notification = await Notification.create(input);
 
-  // 2. Authentication: Ensure a user is making this request.
-  if (!userId) {
-    throw new GraphQLError("You must be logged in to create a notification.", {
-      extensions: { code: "UNAUTHENTICATED" },
+    // Socket.IO realtime мэдэгдэл илгээх
+    io.to(input.recipientId).emit("new-notification", {
+      id: notification._id.toString(),
+      type: notification.type,
+      content: notification.content,
+      read: notification.read,
+      createdAt: notification.createdAt,
     });
-  }
 
-  // 3. Delegate to the service layer for business logic and validation.
-  return NotificationService.create(input, userId);
-};
+    return {
+      __typename: "Notification",
+      id: notification._id.toString(),
+      recipientId: notification.recipientId,
+      type: notification.type,
+      content: notification.content,
+      read: notification.read,
+      createdAt: notification.createdAt,
+    };
+  };

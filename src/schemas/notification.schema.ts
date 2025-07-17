@@ -12,7 +12,7 @@ export const notificationTypeDefs = gql`
   }
 
   type Notification {
-    id: ID! # Switched from _id to id for GraphQL best practice
+    id: ID!
     recipientId: ID!
     type: NotificationType!
     content: String!
@@ -26,8 +26,16 @@ export const notificationTypeDefs = gql`
     content: String!
   }
 
+  input NotificationsFilterInput {
+    read: Boolean
+    type: NotificationType
+    limit: Int
+    offset: Int
+  }
+
   extend type Query {
-    myNotifications: [Notification!]!
+    myNotifications(filter: NotificationsFilterInput): [Notification!]!
+    notificationCount(unreadOnly: Boolean): Int!
   }
 
   extend type Mutation {
