@@ -10,3 +10,4 @@ export * from "./specialization";
 export * from "./achievement";
 export * from "./lawyer";
 export * from "./notification"
+export * from "./chatbot"

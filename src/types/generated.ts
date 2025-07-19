@@ -71,6 +71,23 @@ export type Availability = {
   startTime: Scalars['String']['output'];
 };
 
+export type ChatHistory = {
+  __typename?: 'ChatHistory';
+  _id: Scalars['ID']['output'];
+  botResponse: Scalars['String']['output'];
+  createdAt: Scalars['String']['output'];
+  sessionId: Scalars['String']['output'];
+  userId: Scalars['String']['output'];
+  userMessage: Scalars['String']['output'];
+};
+
+export type ChatHistoryInput = {
+  botResponse?: InputMaybe<Scalars['String']['input']>;
+  sessionId?: InputMaybe<Scalars['String']['input']>;
+  userId?: InputMaybe<Scalars['String']['input']>;
+  userMessage: Scalars['String']['input'];
+};
+
 export type ChatRoom = {
   __typename?: 'ChatRoom';
   _id: Scalars['String']['output'];
@@ -102,7 +119,6 @@ export type CreateAppointmentInput = {
   endedAt: Scalars['String']['input'];
   lawyerId: Scalars['String']['input'];
   schedule: Scalars['String']['input'];
-  specializationId: Scalars['String']['input'];
 };
 
 export type CreateChatRoomInput = {
@@ -280,6 +296,7 @@ export type Mutation = {
   markAllNotificationsAsRead: Scalars['Boolean']['output'];
   markNotificationAsRead: Notification;
   reviewDocument: Document;
+  saveChatHistory: ChatHistory;
   setAvailability?: Maybe<Availability>;
   updateAchievement: Achievement;
   updateChatRoom: ChatRoom;
@@ -404,6 +421,11 @@ export type MutationReviewDocumentArgs = {
 };
 
 
+export type MutationSaveChatHistoryArgs = {
+  input: ChatHistoryInput;
+};
+
+
 export type MutationSetAvailabilityArgs = {
   day: DayOfWeek;
   endTime: Scalars['String']['input'];
@@ -512,6 +534,7 @@ export type Query = {
   getAppointmentsByLawyer?: Maybe<Array<Maybe<Appointment>>>;
   getAppointmentsByUser?: Maybe<Array<Maybe<Appointment>>>;
   getAvailability?: Maybe<Array<Maybe<Availability>>>;
+  getChatHistoryByUser: Array<ChatHistory>;
   getChatRoomById?: Maybe<ChatRoom>;
   getChatRoomsByAppointment: Array<ChatRoom>;
   getCommentsByPost: Array<Comment>;
@@ -558,6 +581,11 @@ export type QueryGetAppointmentsByUserArgs = {
 export type QueryGetAvailabilityArgs = {
   day: DayOfWeek;
   lawyerId: Scalars['String']['input'];
+};
+
+
+export type QueryGetChatHistoryByUserArgs = {
+  userId: Scalars['String']['input'];
 };
 
 
@@ -826,6 +854,8 @@ export type ResolversTypes = {
   AppointmentStatus: AppointmentStatus;
   Availability: ResolverTypeWrapper<Availability>;
   Boolean: ResolverTypeWrapper<Scalars['Boolean']['output']>;
+  ChatHistory: ResolverTypeWrapper<ChatHistory>;
+  ChatHistoryInput: ChatHistoryInput;
   ChatRoom: ResolverTypeWrapper<ChatRoom>;
   Comment: ResolverTypeWrapper<Comment>;
   CreateAchievementInput: CreateAchievementInput;
@@ -884,6 +914,8 @@ export type ResolversParentTypes = {
   Appointment: Appointment;
   Availability: Availability;
   Boolean: Scalars['Boolean']['output'];
+  ChatHistory: ChatHistory;
+  ChatHistoryInput: ChatHistoryInput;
   ChatRoom: ChatRoom;
   Comment: Comment;
   CreateAchievementInput: CreateAchievementInput;
@@ -962,6 +994,16 @@ export type AvailabilityResolvers<ContextType = Context, ParentType extends Reso
   endTime?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   lawyerId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   startTime?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type ChatHistoryResolvers<ContextType = Context, ParentType extends ResolversParentTypes['ChatHistory'] = ResolversParentTypes['ChatHistory']> = {
+  _id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  botResponse?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  createdAt?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  sessionId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  userId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  userMessage?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -1053,6 +1095,7 @@ export type MutationResolvers<ContextType = Context, ParentType extends Resolver
   markAllNotificationsAsRead?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   markNotificationAsRead?: Resolver<ResolversTypes['Notification'], ParentType, ContextType, RequireFields<MutationMarkNotificationAsReadArgs, 'notificationId'>>;
   reviewDocument?: Resolver<ResolversTypes['Document'], ParentType, ContextType, RequireFields<MutationReviewDocumentArgs, 'input'>>;
+  saveChatHistory?: Resolver<ResolversTypes['ChatHistory'], ParentType, ContextType, RequireFields<MutationSaveChatHistoryArgs, 'input'>>;
   setAvailability?: Resolver<Maybe<ResolversTypes['Availability']>, ParentType, ContextType, RequireFields<MutationSetAvailabilityArgs, 'day' | 'endTime' | 'lawyerId' | 'startTime'>>;
   updateAchievement?: Resolver<ResolversTypes['Achievement'], ParentType, ContextType, RequireFields<MutationUpdateAchievementArgs, 'input'>>;
   updateChatRoom?: Resolver<ResolversTypes['ChatRoom'], ParentType, ContextType, RequireFields<MutationUpdateChatRoomArgs, 'input'>>;
@@ -1102,6 +1145,7 @@ export type QueryResolvers<ContextType = Context, ParentType extends ResolversPa
   getAppointmentsByLawyer?: Resolver<Maybe<Array<Maybe<ResolversTypes['Appointment']>>>, ParentType, ContextType, RequireFields<QueryGetAppointmentsByLawyerArgs, 'lawyerId'>>;
   getAppointmentsByUser?: Resolver<Maybe<Array<Maybe<ResolversTypes['Appointment']>>>, ParentType, ContextType, RequireFields<QueryGetAppointmentsByUserArgs, 'clientId'>>;
   getAvailability?: Resolver<Maybe<Array<Maybe<ResolversTypes['Availability']>>>, ParentType, ContextType, RequireFields<QueryGetAvailabilityArgs, 'day' | 'lawyerId'>>;
+  getChatHistoryByUser?: Resolver<Array<ResolversTypes['ChatHistory']>, ParentType, ContextType, RequireFields<QueryGetChatHistoryByUserArgs, 'userId'>>;
   getChatRoomById?: Resolver<Maybe<ResolversTypes['ChatRoom']>, ParentType, ContextType, RequireFields<QueryGetChatRoomByIdArgs, '_id'>>;
   getChatRoomsByAppointment?: Resolver<Array<ResolversTypes['ChatRoom']>, ParentType, ContextType, RequireFields<QueryGetChatRoomsByAppointmentArgs, 'appointmentId'>>;
   getCommentsByPost?: Resolver<Array<ResolversTypes['Comment']>, ParentType, ContextType, RequireFields<QueryGetCommentsByPostArgs, 'postId'>>;
@@ -1153,6 +1197,7 @@ export type Resolvers<ContextType = Context> = {
   AdminSpecialization?: AdminSpecializationResolvers<ContextType>;
   Appointment?: AppointmentResolvers<ContextType>;
   Availability?: AvailabilityResolvers<ContextType>;
+  ChatHistory?: ChatHistoryResolvers<ContextType>;
   ChatRoom?: ChatRoomResolvers<ContextType>;
   Comment?: CommentResolvers<ContextType>;
   Date?: GraphQLScalarType;

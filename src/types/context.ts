@@ -13,4 +13,5 @@ export interface Context {
   role?: string;
   clientId?: string;
   lawyerId?: string;
+  io: any;
 }

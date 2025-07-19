@@ -8,7 +8,9 @@ enum MediaType {
 }
 
 type MessageSchemaType = {
-  chatRoomId: Types.ObjectId;
+  chatRoomId: string;
+
+  // chatRoomId: Types.ObjectId;
   userId: string;
   type: MediaType;
   content: string;
@@ -16,7 +18,9 @@ type MessageSchemaType = {
 
 const MessageSchema = new Schema<MessageSchemaType>(
   {
-    chatRoomId: { type: Schema.Types.ObjectId, ref: "ChatRoom" },
+    chatRoomId: { type: String,
+      //  ref: "ChatRoom"
+       },
     userId: { type: String, required: true },
     type: {
       type: String,

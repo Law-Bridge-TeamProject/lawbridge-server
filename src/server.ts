@@ -1,43 +1,32 @@
 // ====================================================================
-//              EXPRESS SERVER - FULL IMPLEMENTATION
+//              EXPRESS SERVER - COMPLETE SOCKET.IO IMPLEMENTATION
 // ====================================================================
 
-// --- 1. IMPORTS ---
-import "dotenv/config"; // MUST be the very first import to load .env variables
+import "dotenv/config";
 import express from "express";
-import { createServer, IncomingMessage } from "http";
-import { Duplex } from "stream";
+import { createServer } from "http";
 import mongoose from "mongoose";
 import cors from "cors";
-import { parse } from "url";
+import OpenAI from "openai";
 
-// Apollo & GraphQL Imports
 import { ApolloServer } from "@apollo/server";
 import { expressMiddleware } from "@apollo/server/express4";
 import { makeExecutableSchema } from "@graphql-tools/schema";
-import { useServer } from "graphql-ws/use/ws";
-import { WebSocketServer } from "ws";
 
-// Socket.IO Import
 import { Server as SocketIOServer, Socket } from "socket.io";
 
-// Authentication & API Imports
 import { clerkClient, getAuth, clerkMiddleware } from "@clerk/express";
 import { verifyToken } from "@clerk/backend";
 import { AccessToken } from "livekit-server-sdk";
 
-// Local Schema and Type Imports
 import { typeDefs } from "./schemas";
 import { resolvers } from "./resolvers";
 import { Context } from "./types/context";
+import { Message } from "./models/message.model";
+import { chatWithBot, clearChatHistory, getChatStats } from "./lib/langchain";
 
-
-// --- 2. PRE-SERVER SETUP & TYPE DEFINITIONS ---
-
-// Create the single, executable schema object to be shared across services
 const schema = makeExecutableSchema({ typeDefs, resolvers });
 
-// Define a custom interface for our authenticated Socket.IO sockets
 interface SocketWithAuth extends Socket {
   data: {
     user?: {
@@ -48,49 +37,65 @@ interface SocketWithAuth extends Socket {
   };
 }
 
-// A simple in-memory store for connected users.
-// In a production environment with multiple server instances, use Redis.
 const connectedUsers = new Map<string, any>();
 
-
-// --- 3. MAIN SERVER STARTUP LOGIC ---
 async function startServer() {
-  // Connect to the database first
   await mongoose.connect(process.env.MONGODB_CONNECTION_URL ?? "");
   console.log("✅ MongoDB Connected");
 
   const app = express();
   const httpServer = createServer(app);
 
-  // --- A. CRITICAL: MIDDLEWARE SETUP (ORDER MATTERS) ---
-  app.use(cors({ origin: "http://localhost:3000", credentials: true }));
+  // CORS Configuration
+  app.use(
+    cors({
+      origin: "http://localhost:3000",
+      credentials: true,
+    })
+  );
   app.use(clerkMiddleware());
   app.use(express.json());
 
-  // --- B. SECURE API ROUTE for LiveKit Token Generation ---
+  // LiveKit Token Endpoint
   app.post("/api/livekit-token", async (req, res) => {
     try {
       const { userId } = getAuth(req);
       if (!userId) {
-        return res.status(401).json({ error: "Unauthorized: User is not signed in." });
+        return res
+          .status(401)
+          .json({ error: "Unauthorized: User is not signed in." });
       }
 
       const { room } = req.body;
-      if (!room || typeof room !== 'string') {
-        return res.status(400).json({ error: "Bad Request: 'room' parameter is missing or invalid." });
+      if (!room || typeof room !== "string") {
+        return res.status(400).json({
+          error: "Bad Request: 'room' parameter is missing or invalid.",
+        });
       }
-      
+
       const apiKey = process.env.LIVEKIT_API_KEY;
       const apiSecret = process.env.LIVEKIT_API_SECRET;
       if (!apiKey || !apiSecret) {
-        console.error("FATAL: LiveKit API credentials are not found in .env file.");
-        return res.status(500).json({ error: "Server Configuration Error: LiveKit credentials not set." });
+        console.error(
+          "FATAL: LiveKit API credentials are not found in .env file."
+        );
+        return res.status(500).json({
+          error: "Server Configuration Error: LiveKit credentials not set.",
+        });
       }
 
-      const at = new AccessToken(apiKey, apiSecret, { identity: userId, name: userId });
-      at.addGrant({ roomJoin: true, room, canPublish: true, canSubscribe: true });
+      const at = new AccessToken(apiKey, apiSecret, {
+        identity: userId,
+        name: userId,
+      });
+      at.addGrant({
+        roomJoin: true,
+        room,
+        canPublish: true,
+        canSubscribe: true,
+      });
       const token = await at.toJwt();
-      
+
       return res.status(200).json({ token });
     } catch (error) {
       console.error("UNEXPECTED ERROR in /api/livekit-token:", error);
@@ -98,44 +103,242 @@ async function startServer() {
     }
   });
 
-  // --- C. SOCKET.IO SERVER SETUP ---
-  const io = new SocketIOServer(httpServer, {
-    path: "/socket.io",
-    cors: { origin: "http://localhost:3000", methods: ["GET", "POST"], credentials: true },
+  // ====================================================================
+  //                        CHAT API ENDPOINTS
+  // ====================================================================
+
+  // Main Chat Endpoint - Updated to match frontend expectations
+  app.post("/api/chat", async (req, res) => {
+    try {
+      const { message, userId, options } = req.body;
+
+      // If no explicit userId provided, try to get from Clerk auth
+      let finalUserId = userId;
+      if (!finalUserId) {
+        const { userId: clerkUserId } = getAuth(req);
+        finalUserId = clerkUserId;
+      }
+
+      if (!message || !finalUserId) {
+        return res
+          .status(400)
+          .json({ error: "Message and userId are required" });
+      }
+
+      console.log(`💬 Chat request from user: ${finalUserId}`);
+      console.log(`📝 Message: ${message.substring(0, 100)}...`);
+
+      const response = await chatWithBot(message, finalUserId, options || {});
+
+      res.json(response);
+    } catch (error) {
+      console.error("❌ Chat Error:", error);
+
+      // Send user-friendly error messages
+      const errorMessage =
+        error instanceof Error ? error.message : "Chatbot failed";
+      res.status(500).json({
+        error: errorMessage,
+        timestamp: new Date().toISOString(),
+      });
+    }
   });
 
-  // Authentication middleware for each connecting socket
+  // Clear Chat History Endpoint
+  app.post("/api/chat/clear", async (req, res) => {
+    try {
+      const { userId } = req.body;
+
+      // If no explicit userId provided, try to get from Clerk auth
+      let finalUserId = userId;
+      if (!finalUserId) {
+        const { userId: clerkUserId } = getAuth(req);
+        finalUserId = clerkUserId;
+      }
+
+      if (!finalUserId) {
+        return res.status(400).json({ error: "User ID is required" });
+      }
+
+      await clearChatHistory(finalUserId);
+      res.json({ success: true, message: "Chat history cleared" });
+    } catch (error) {
+      console.error("❌ Clear Chat Error:", error);
+      res.status(500).json({ error: "Failed to clear chat history" });
+    }
+  });
+
+  // Chat Statistics Endpoint
+  app.get("/api/chat/stats", async (req, res) => {
+    try {
+      const { userId } = req.query;
+
+      // If no explicit userId provided, try to get from Clerk auth
+      let finalUserId = userId as string;
+      if (!finalUserId) {
+        const { userId: clerkUserId } = getAuth(req);
+        finalUserId = clerkUserId || "";
+      }
+
+      if (!finalUserId) {
+        return res.status(400).json({ error: "User ID is required" });
+      }
+
+      const stats = await getChatStats(finalUserId);
+      res.json(stats);
+    } catch (error) {
+      console.error("❌ Chat Stats Error:", error);
+      res.status(500).json({ error: "Failed to get chat statistics" });
+    }
+  });
+
+  // Legacy chatbot endpoint (keeping for backward compatibility)
+  app.post("/api/chatbot", async (req, res) => {
+    try {
+      const { question } = req.body;
+      const { userId } = getAuth(req);
+
+      if (!question || !userId) {
+        return res
+          .status(400)
+          .json({ error: "Question and userId are required" });
+      }
+
+      const response = await chatWithBot(question, userId);
+      res.json({ answer: response.answer });
+    } catch (error) {
+      console.error("Chatbot Error:", error);
+      res.status(500).json({ error: "Chatbot failed" });
+    }
+  });
+
+  const openai = new OpenAI({
+    apiKey: process.env.OPENAI_API_KEY!,
+  });
+
+  const legalKnowledge = `
+1. Иргэний хуулийн 56-р зүйл: Гэрээ нь талуудын эрх, үүргийг зохицуулна.
+2. Хөдөлмөрийн хуулийн 78-р зүйл: Ажил олгогч нь тодорхой үндэслэлээр ажилтныг чөлөөлж болно.
+3. Эрүүгийн хууль: Хулгайлах, дээрэмдэх, луйвардах нь эрүүгийн хэрэгт тооцогдоно.
+`;
+
+  // Socket.IO Server Setup
+  const io = new SocketIOServer(httpServer, {
+    path: "/socket.io",
+    cors: {
+      origin: "http://localhost:3000",
+      methods: ["GET", "POST"],
+      credentials: true,
+    },
+  });
+
+  // Socket.IO Authentication Middleware
   io.use(async (socket: SocketWithAuth, next) => {
     const token = socket.handshake.auth.token;
-    if (!token) return next(new Error("Authentication error: Token not provided."));
+    if (!token) {
+      return next(new Error("Authentication error: Token not provided."));
+    }
+
     try {
-      const decoded = await verifyToken(token, { secretKey: process.env.CLERK_SECRET_KEY! });
+      const decoded = await verifyToken(token, {
+        secretKey: process.env.CLERK_SECRET_KEY!,
+      });
       const clerkUser = await clerkClient.users.getUser(decoded.sub);
-      socket.data.user = { id: clerkUser.id, username: clerkUser.username ?? "User", imageUrl: clerkUser.imageUrl };
+      socket.data.user = {
+        id: clerkUser.id,
+        username: clerkUser.username ?? "User",
+        imageUrl: clerkUser.imageUrl,
+      };
       next();
     } catch (err) {
       next(new Error("Authentication error: Invalid token."));
     }
   });
 
-  // Main connection handler
+  // Socket.IO Connection Handler
   io.on("connection", (socket: SocketWithAuth) => {
     const user = socket.data.user;
-    if (!user) return; // Should not happen if middleware is correct
+    if (!user) return;
 
     console.log(`⚡ Socket Connected: ${user.username} (ID: ${socket.id})`);
+
+    // Add user to connected users map
     connectedUsers.set(socket.id, { ...user, socketId: socket.id });
-    socket.join(user.id); // Private room for user-specific events
+    socket.join(user.id);
+
+    // Emit online users list
     io.emit("onlineUsers", Array.from(connectedUsers.values()));
 
-    // Example chat message handler
-    socket.on("chat-message", async ({ toUserId, ...messageData }) => {
-      if (!messageData.sender) return;
-      const permanentId = `msg_${Date.now()}`; // In real app, use DB ID
-      const messageToBroadcast = { ...messageData, id: permanentId };
-      io.to(toUserId).to(messageData.sender.id).emit("chat-message", messageToBroadcast);
+    // Join Chat Room Event
+    socket.on("join-room", (roomId: string) => {
+      socket.join(roomId);
+      console.log(`🏠 Socket ${socket.id} joined room ${roomId}`);
     });
 
+    // Leave Chat Room Event
+    socket.on("leave-room", (roomId: string) => {
+      socket.leave(roomId);
+      console.log(`🚪 Socket ${socket.id} left room ${roomId}`);
+    });
+
+    // Direct Chat Message Event (Alternative to GraphQL)
+    socket.on(
+      "chat-message",
+      async ({ chatRoomId, content, userId, type = "TEXT" }) => {
+        console.log(`📩 Direct message received:`, {
+          chatRoomId,
+          content,
+          userId,
+          type,
+        });
+
+        if (!chatRoomId || !content || !userId) {
+          console.error("❌ Missing required fields:", {
+            chatRoomId,
+            content,
+            userId,
+          });
+          socket.emit("message-error", { error: "Missing required fields" });
+          return;
+        }
+
+        try {
+          // Save message to MongoDB
+          const savedMessage = await Message.create({
+            chatRoomId,
+            content,
+            userId,
+            type,
+            createdAt: new Date(),
+          });
+
+          // Populate sender information if your model has sender reference
+          const populatedMessage = await Message.findById(savedMessage._id);
+          const messageToEmit = populatedMessage || savedMessage;
+
+          console.log(`💾 Message saved:`, messageToEmit);
+
+          // Emit to all clients in the room
+          io.to(chatRoomId).emit("message-created", messageToEmit);
+
+          console.log(`📤 Message emitted to room: ${chatRoomId}`);
+        } catch (error) {
+          console.error("❌ Failed to save or emit message:", error);
+          socket.emit("message-error", { error: "Failed to send message" });
+        }
+      }
+    );
+
+    // User Typing Event
+    socket.on("typing", ({ chatRoomId, isTyping }) => {
+      socket.to(chatRoomId).emit("user-typing", {
+        userId: user.id,
+        username: user.username,
+        isTyping,
+      });
+    });
+
+    // Disconnect Event
     socket.on("disconnect", () => {
       const disconnectedUser = connectedUsers.get(socket.id);
       if (disconnectedUser) {
@@ -146,29 +349,44 @@ async function startServer() {
     });
   });
 
-  // --- D. APOLLO GRAPHQL & WEBSOCKET SUBSCRIPTION SERVER SETUP ---
-  const apolloServer = new ApolloServer<Context>({ schema, introspection: true });
+  // Apollo Server Setup
+  const apolloServer = new ApolloServer<Context>({
+    schema,
+    introspection: true,
+  });
   await apolloServer.start();
-  app.use("/graphql", expressMiddleware(apolloServer, {
+
+  // GraphQL Endpoint with Socket.IO in context
+  app.use(
+    "/graphql",
+    expressMiddleware(apolloServer, {
       context: async ({ req }): Promise<Context> => {
         const { userId } = getAuth(req);
-        return { req, db: mongoose.connection.db, userId: userId ?? undefined };
-      }
-  }));
+        return {
+          req,
+          db: mongoose.connection.db,
+          userId: userId ?? undefined,
+          io, // ✅ Pass Socket.IO instance to GraphQL resolvers
+        };
+      },
+    })
+  );
 
-  const wsServer = new WebSocketServer({ noServer: true });
-  useServer({ schema }, wsServer);
-
-  // The critical fix for WebSocket server conflicts
-  httpServer.on("upgrade", (req: IncomingMessage, socket: Duplex, head: Buffer) => {
-    const pathname = req.url ? parse(req.url).pathname : undefined;
-    if (pathname === "/graphql") {
-      wsServer.handleUpgrade(req, socket, head, (ws) => wsServer.emit("connection", ws, req));
-    }
-    // Note: Socket.IO has its own internal 'upgrade' handler, so we don't need an 'else' block.
+  // Health Check Endpoint
+  app.get("/api/health", (req, res) => {
+    res.json({
+      status: "OK",
+      timestamp: new Date().toISOString(),
+      services: {
+        mongodb:
+          mongoose.connection.readyState === 1 ? "connected" : "disconnected",
+        socketio: "running",
+        graphql: "running",
+      },
+    });
   });
 
-  // --- E. START THE HTTP SERVER ---
+  // Start Server
   const PORT = Number(process.env.PORT) || 4000;
   httpServer.listen(PORT, () => {
     console.log("======================================================");
@@ -176,12 +394,16 @@ async function startServer() {
     console.log(`🚀 GraphQL ready at POST /graphql`);
     console.log(`💬 Socket.IO ready at path /socket.io`);
     console.log(`🎥 LiveKit Token endpoint ready at POST /api/livekit-token`);
+    console.log(`💬 Chat API endpoints ready:`);
+    console.log(`   - POST /api/chat (main chat)`);
+    console.log(`   - POST /api/chat/clear (clear history)`);
+    console.log(`   - GET /api/chat/stats (chat statistics)`);
+    console.log(`   - GET /api/health (health check)`);
     console.log("======================================================");
   });
 }
 
-// --- 4. RUN THE SERVER ---
 startServer().catch((err) => {
   console.error("❌ Fatal server startup error:", err);
-  process.exit(1); // Exit if server fails to start
+  process.exit(1);
 });

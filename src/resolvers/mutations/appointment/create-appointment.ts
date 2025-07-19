@@ -4,6 +4,7 @@ import {
   AppointmentStatus,
 } from "@/types/generated";
 import { Appointment } from "@/models";
+import { ChatRoom } from "@/models/chatRoom.model";
 
 export const createAppointment: MutationResolvers["createAppointment"] = async (
   _,
@@ -20,8 +21,18 @@ export const createAppointment: MutationResolvers["createAppointment"] = async (
       status: "PENDING",
       price: 0,
       isFree: false,
-      specializationId: [],
+      specializationId: null, // Set to null since it's not in input
     });
+
+    // Create a chatroom for this appointment
+    const chatRoomDoc = await ChatRoom.create({
+      participants: [context.clientId, lawyerId.toString()],
+      appointmentId: appointmentDoc._id,
+    });
+
+    // Link chatroom to appointment
+    appointmentDoc.chatRoomId = chatRoomDoc._id;
+    await appointmentDoc.save();
 
     const appointment: AppointmentType = {
       lawyerId: appointmentDoc.lawyerId.toString(),
@@ -29,7 +40,8 @@ export const createAppointment: MutationResolvers["createAppointment"] = async (
       schedule: appointmentDoc.schedule,
       status: appointmentDoc.status as unknown as AppointmentStatus.Pending,
       isFree: false,
-      specializationId:null
+      specializationId: appointmentDoc.specializationId ? appointmentDoc.specializationId.toString() : "",
+      chatRoomId: chatRoomDoc._id.toString(),
     };
 
     return appointment;

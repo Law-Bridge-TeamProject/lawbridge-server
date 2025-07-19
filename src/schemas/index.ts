@@ -11,6 +11,7 @@ import { specializationTypedefs } from "./specialization.schema";
 import { postTypeDefs } from "./post.schema";
 import { achievementTypeDefs } from "./achievements.schema";
 import { lawyerSpecializationTypeDefs } from "./lawyer-specialization.schema";
+import { chatHistoryTypeDefs } from "./chat-history.schema";
 
 export const typeDefs = [
   achievementTypeDefs,
@@ -25,5 +26,6 @@ export const typeDefs = [
   chatRoomSchema,
   messageTypeDefs,
   documentTypeDefs,
-  lawyerSpecializationTypeDefs
+  lawyerSpecializationTypeDefs,
+  chatHistoryTypeDefs
 ];
