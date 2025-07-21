@@ -1,12 +1,14 @@
 import { gql } from "graphql-tag";
 
 export const chatHistoryTypeDefs = gql`
+  scalar JSON
+
   type ChatHistory {
     _id: ID!
     userId: String!
     sessionId: String!
     userMessage: String!
-    botResponse: String!
+    botResponse: JSON!
     createdAt: String!
   }
 
@@ -14,7 +16,7 @@ export const chatHistoryTypeDefs = gql`
     userId: String
     sessionId: String
     userMessage: String!
-    botResponse: String
+    botResponse: JSON
   }
 
   type Mutation {

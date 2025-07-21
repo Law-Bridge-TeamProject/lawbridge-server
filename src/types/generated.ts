@@ -16,6 +16,7 @@ export type Scalars = {
   Int: { input: number; output: number; }
   Float: { input: number; output: number; }
   Date: { input: any; output: any; }
+  JSON: { input: any; output: any; }
 };
 
 export type Achievement = {
@@ -74,7 +75,7 @@ export type Availability = {
 export type ChatHistory = {
   __typename?: 'ChatHistory';
   _id: Scalars['ID']['output'];
-  botResponse: Scalars['String']['output'];
+  botResponse: Scalars['JSON']['output'];
   createdAt: Scalars['String']['output'];
   sessionId: Scalars['String']['output'];
   userId: Scalars['String']['output'];
@@ -82,7 +83,7 @@ export type ChatHistory = {
 };
 
 export type ChatHistoryInput = {
-  botResponse?: InputMaybe<Scalars['String']['input']>;
+  botResponse?: InputMaybe<Scalars['JSON']['input']>;
   sessionId?: InputMaybe<Scalars['String']['input']>;
   userId?: InputMaybe<Scalars['String']['input']>;
   userMessage: Scalars['String']['input'];
@@ -875,6 +876,7 @@ export type ResolversTypes = {
   DocumentMediaType: DocumentMediaType;
   ID: ResolverTypeWrapper<Scalars['ID']['output']>;
   Int: ResolverTypeWrapper<Scalars['Int']['output']>;
+  JSON: ResolverTypeWrapper<Scalars['JSON']['output']>;
   Lawyer: ResolverTypeWrapper<Lawyer>;
   LawyerRequestStatus: LawyerRequestStatus;
   LawyerSpecializationInput: LawyerSpecializationInput;
@@ -933,6 +935,7 @@ export type ResolversParentTypes = {
   Document: Document;
   ID: Scalars['ID']['output'];
   Int: Scalars['Int']['output'];
+  JSON: Scalars['JSON']['output'];
   Lawyer: Lawyer;
   LawyerSpecializationInput: LawyerSpecializationInput;
   ManageLawyerRequestInput: ManageLawyerRequestInput;
@@ -999,7 +1002,7 @@ export type AvailabilityResolvers<ContextType = Context, ParentType extends Reso
 
 export type ChatHistoryResolvers<ContextType = Context, ParentType extends ResolversParentTypes['ChatHistory'] = ResolversParentTypes['ChatHistory']> = {
   _id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
-  botResponse?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  botResponse?: Resolver<ResolversTypes['JSON'], ParentType, ContextType>;
   createdAt?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   sessionId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   userId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
@@ -1041,6 +1044,10 @@ export type DocumentResolvers<ContextType = Context, ParentType extends Resolver
   type?: Resolver<Maybe<ResolversTypes['DocumentMediaType']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
+
+export interface JsonScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes['JSON'], any> {
+  name: 'JSON';
+}
 
 export type LawyerResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Lawyer'] = ResolversParentTypes['Lawyer']> = {
   _id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
@@ -1202,6 +1209,7 @@ export type Resolvers<ContextType = Context> = {
   Comment?: CommentResolvers<ContextType>;
   Date?: GraphQLScalarType;
   Document?: DocumentResolvers<ContextType>;
+  JSON?: GraphQLScalarType;
   Lawyer?: LawyerResolvers<ContextType>;
   Message?: MessageResolvers<ContextType>;
   Mutation?: MutationResolvers<ContextType>;
