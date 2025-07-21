@@ -55,7 +55,7 @@ const LawyerSchema = new Schema<LawyerSchemaType>(
       required: true,
     },
     university: { type: String, required: false },
-    document: { type: String, required: true },
+    document: { type: String, required: false },
     rating: { type: Number },
     profilePicture: { type: String, required: true },
   },

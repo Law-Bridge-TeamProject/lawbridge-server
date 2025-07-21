@@ -24,6 +24,7 @@ import { resolvers } from "./resolvers";
 import { Context } from "./types/context";
 import { Message } from "./models/message.model";
 import { chatWithBot, clearChatHistory, getChatStats } from "./lib/langchain";
+import { buildContext } from "./lib/context";
 
 const schema = makeExecutableSchema({ typeDefs, resolvers });
 
@@ -360,15 +361,7 @@ async function startServer() {
   app.use(
     "/graphql",
     expressMiddleware(apolloServer, {
-      context: async ({ req }): Promise<Context> => {
-        const { userId } = getAuth(req);
-        return {
-          req,
-          db: mongoose.connection.db,
-          userId: userId ?? undefined,
-          io, // ✅ Pass Socket.IO instance to GraphQL resolvers
-        };
-      },
+      context: async ({ req }) => await buildContext(req),
     })
   );
 
