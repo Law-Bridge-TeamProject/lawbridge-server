@@ -9,15 +9,18 @@ export const getPostsByLawyer: QueryResolvers["getPostsByLawyer"] = async (
   const posts = await Post.find({ lawyerId }).sort({ createdAt: -1 });
 
   return posts.map((post) => ({
-    _id: post.id,                 
+    id: post._id.toString(),
+    _id: post._id.toString(),
     lawyerId: post.lawyerId,
     title: post.title,
     content: post.content,
-    specialization: post.specialization.map((s) => s.toString()),
+    specialization: (post.specialization || []).map((s) =>
+      typeof s === "object" && s !== null && s._id
+        ? { ...s, _id: s._id.toString() }
+        : s
+    ),
     type: post.type,
     createdAt: post.createdAt,
     updatedAt: post.updatedAt,
   }));
 };
-
-

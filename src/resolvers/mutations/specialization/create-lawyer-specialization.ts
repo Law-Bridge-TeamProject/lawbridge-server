@@ -4,10 +4,10 @@ import { MutationResolvers } from "@/types/generated";
 import { GraphQLError } from "graphql";
 
 export const createSpecialization: MutationResolvers["createSpecialization"] =
-  async (_, { input }) => {
+  async (_, { input },context) => {
     try {
       const docs = input.specializations.map((s) => ({
-        lawyerId: s.lawyerId,
+        lawyerId: context.lawyerId,
         specializationId: s.specializationId,
         subscription: s.subscription,
         pricePerHour: s.pricePerHour,
