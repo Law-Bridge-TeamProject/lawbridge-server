@@ -172,7 +172,7 @@ export type CreateReviewInput = {
 };
 
 export type CreateSpecializationInput = {
-  lawyerId: Scalars['ID']['input'];
+  lawyerId?: InputMaybe<Scalars['ID']['input']>;
   pricePerHour?: InputMaybe<Scalars['Int']['input']>;
   specializationId: Scalars['ID']['input'];
   subscription: Scalars['Boolean']['input'];
@@ -275,6 +275,7 @@ export type Message = {
 export type Mutation = {
   __typename?: 'Mutation';
   adminCreateSpecialization: AdminSpecialization;
+  clearChatHistory: Scalars['Boolean']['output'];
   createAchievement: Achievement;
   createAppointment?: Maybe<Appointment>;
   createChatRoom?: Maybe<Scalars['String']['output']>;
@@ -311,6 +312,11 @@ export type Mutation = {
 
 export type MutationAdminCreateSpecializationArgs = {
   input: AdminCreateSpecializationInput;
+};
+
+
+export type MutationClearChatHistoryArgs = {
+  userId: Scalars['String']['input'];
 };
 
 
@@ -505,7 +511,7 @@ export type Post = {
   createdAt: Scalars['Date']['output'];
   id: Scalars['ID']['output'];
   lawyerId: Scalars['ID']['output'];
-  specialization: Array<Specialization>;
+  specialization: Array<AdminSpecialization>;
   title: Scalars['String']['output'];
   type: MediaType;
   updatedAt?: Maybe<Scalars['Date']['output']>;
@@ -1080,6 +1086,7 @@ export type MessageResolvers<ContextType = Context, ParentType extends Resolvers
 
 export type MutationResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = {
   adminCreateSpecialization?: Resolver<ResolversTypes['AdminSpecialization'], ParentType, ContextType, RequireFields<MutationAdminCreateSpecializationArgs, 'input'>>;
+  clearChatHistory?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationClearChatHistoryArgs, 'userId'>>;
   createAchievement?: Resolver<ResolversTypes['Achievement'], ParentType, ContextType, RequireFields<MutationCreateAchievementArgs, 'input'>>;
   createAppointment?: Resolver<Maybe<ResolversTypes['Appointment']>, ParentType, ContextType, RequireFields<MutationCreateAppointmentArgs, 'input'>>;
   createChatRoom?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType, RequireFields<MutationCreateChatRoomArgs, 'appointmentId'>>;
@@ -1129,7 +1136,7 @@ export type PostResolvers<ContextType = Context, ParentType extends ResolversPar
   createdAt?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   lawyerId?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
-  specialization?: Resolver<Array<ResolversTypes['Specialization']>, ParentType, ContextType>;
+  specialization?: Resolver<Array<ResolversTypes['AdminSpecialization']>, ParentType, ContextType>;
   title?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   type?: Resolver<ResolversTypes['MediaType'], ParentType, ContextType>;
   updatedAt?: Resolver<Maybe<ResolversTypes['Date']>, ParentType, ContextType>;

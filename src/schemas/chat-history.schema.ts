@@ -21,6 +21,7 @@ export const chatHistoryTypeDefs = gql`
 
   type Mutation {
     saveChatHistory(input: ChatHistoryInput!): ChatHistory!
+    clearChatHistory(userId: String!): Boolean!
   }
 
   type Query {

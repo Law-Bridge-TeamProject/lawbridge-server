@@ -224,12 +224,6 @@ async function startServer() {
     apiKey: process.env.OPENAI_API_KEY!,
   });
 
-  const legalKnowledge = `
-1. Иргэний хуулийн 56-р зүйл: Гэрээ нь талуудын эрх, үүргийг зохицуулна.
-2. Хөдөлмөрийн хуулийн 78-р зүйл: Ажил олгогч нь тодорхой үндэслэлээр ажилтныг чөлөөлж болно.
-3. Эрүүгийн хууль: Хулгайлах, дээрэмдэх, луйвардах нь эрүүгийн хэрэгт тооцогдоно.
-`;
-
   // Socket.IO Server Setup
   const io = new SocketIOServer(httpServer, {
     path: "/socket.io",

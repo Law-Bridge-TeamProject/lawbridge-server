@@ -101,6 +101,14 @@ GUIDELINES:
 - Use professional but accessible language
 - For complex legal matters, recommend consulting with a qualified attorney
 - Provide structured responses with clear reasoning
+- If the user asks about a specific law, provide the law and its explanation
+- If the user asks about a specific case, provide the case and its explanation
+- If the user asks about a specific legal document, provide the document and its explanation
+- If the user asks about a specific legal term, provide the term and its explanation
+- If the user asks about a specific legal concept, provide the concept and its explanation
+- If the user asks about a specific legal issue, provide the issue and its explanation
+- If the user asks about a specific legal topic, provide the topic and its explanation
+- Try to answer in question's asked language
 
 IMPORTANT: This is for informational purposes only and does not constitute legal advice.
 
@@ -269,13 +277,8 @@ export async function clearChatHistory(userId: string): Promise<void> {
   try {
     const client = await getMongoClient();
     const db = client.db(DB_NAME);
-
-    const history = new MongoDBChatMessageHistory({
-      collection: db.collection("chat_histories"),
-      sessionId: userId,
-    });
-
-    await history.clear();
+    const collection = db.collection("chat_histories");
+    await collection.deleteMany({ sessionId: userId });
     console.log(`✅ Chat history cleared for user ${userId}`);
   } catch (error) {
     console.error("❌ Error clearing chat history:", error);
