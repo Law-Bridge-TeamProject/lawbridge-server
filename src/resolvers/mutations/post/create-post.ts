@@ -31,7 +31,7 @@ export const createPost: MutationResolvers["createPost"] = async (
       type: postType,
     });
 
-    await newPost.populate("specialization");
+    await newPost.populate("LawyerSpecialization");
 
     return newPost as any;
   } catch (error) {

@@ -33,7 +33,7 @@ export const postTypeDefs = gql`
     lawyerId: ID!
     title: String!
     content: PostContent! # <-- FIX: This now correctly uses the object type
-    specialization: [Specialization!]!
+    specialization: [AdminSpecialization!]!
     type: MediaType! # <-- CORRECT: This remains an enum
     createdAt: Date!
     updatedAt: Date
