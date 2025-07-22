@@ -3,10 +3,11 @@ import { QueryResolvers } from "@/types/generated";
 
 export const getPostsByLawyer: QueryResolvers["getPostsByLawyer"] = async (
   _,
-  { lawyerId },
-  context
+  { lawyerId }
 ) => {
-  const posts = await Post.find({ lawyerId }).sort({ createdAt: -1 });
+  const posts = await Post.find({ lawyerId })
+    .sort({ createdAt: -1 })
+    .populate("specialization");
 
   return posts.map((post) => ({
     id: post._id.toString(),
@@ -14,12 +15,22 @@ export const getPostsByLawyer: QueryResolvers["getPostsByLawyer"] = async (
     lawyerId: post.lawyerId,
     title: post.title,
     content: post.content,
-    specialization: (post.specialization || []).map((s) =>
-      typeof s === "object" && s !== null && s._id
-        ? { ...s, _id: s._id.toString() }
-        : s
-    ),
-    type: post.type,
+    specialization: (post.specialization || [])
+      .filter(
+        (s) =>
+          typeof s === "object" &&
+          s !== null &&
+          Object.prototype.hasOwnProperty.call(s, "categoryName")
+      )
+      .map((s) => {
+        const spec = s as any;
+        return {
+          id: spec._id.toString(),
+          _id: spec._id.toString(),
+          categoryName: spec.categoryName,
+        };
+      }),
+    type: post.type as any, // Cast to MediaType if needed
     createdAt: post.createdAt,
     updatedAt: post.updatedAt,
   }));
