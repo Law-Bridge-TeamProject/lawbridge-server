@@ -48,12 +48,19 @@ async function startServer() {
   const httpServer = createServer(app);
 
   // CORS Configuration
-  app.use(
-    cors({
-      origin: "http://localhost:3000",
-      credentials: true,
-    })
-  );
+ app.use(
+  cors({
+    origin: (origin, callback) => {
+      const allowedOrigins = ["https://studio.apollographql.com", "http://localhost:3000"];
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
+    credentials: true,
+  })
+);
   app.use(clerkMiddleware());
   app.use(express.json());
 
