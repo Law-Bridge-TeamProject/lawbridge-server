@@ -6,7 +6,7 @@ export const deletePost: MutationResolvers["deletePost"] = async (
   { postId },
   context
 ) => {
-  const { lawyerId } = context;
+  const  lawyerId  = context.lawyerId;
   if (!lawyerId) throw new Error("Unauthorized: Lawyer not authenticated");
 
   const post = await Post.findById(postId);

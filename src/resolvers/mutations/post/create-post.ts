@@ -1,6 +1,5 @@
 import { Post } from "@/models";
 import { MutationResolvers, MediaType } from "@/types/generated";
-import { Context } from "@/types/context";
 import { GraphQLError } from "graphql";
 
 export const createPost: MutationResolvers["createPost"] = async (
@@ -8,7 +7,7 @@ export const createPost: MutationResolvers["createPost"] = async (
   { input },
   context
 ) => {
-  const { lawyerId } = context;
+  const lawyerId = context.lawyerId;
   if (!lawyerId) {
     throw new GraphQLError(
       "Unauthorized: You must be an authenticated lawyer to create a post.",

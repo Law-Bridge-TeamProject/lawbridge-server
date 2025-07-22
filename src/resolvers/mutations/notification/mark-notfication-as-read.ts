@@ -1,7 +1,5 @@
 import { Notification, toGqlNotification } from "@/models";
-import { Context } from "@/types/context";
 import { MutationResolvers } from "@/types/generated";
-import { GraphQLError } from "graphql";
 
 export const markNotificationAsRead: MutationResolvers["markNotificationAsRead"] =
   async (_, { notificationId }, context) => {

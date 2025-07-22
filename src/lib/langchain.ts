@@ -143,7 +143,7 @@ export async function chatWithBot(
   const {
     maxTokens = 500,
     temperature = 0.3,
-    includeSourceDocs = false,
+    includeSourceDocs = true,
     maxHistoryLength = 10,
   } = options;
 

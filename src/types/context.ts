@@ -2,6 +2,7 @@
 
 import type { Request } from "express";
 import mongoose from "mongoose";
+import { Server } from "socket.io";
 
 // The name is now GraphQLContext and it is exported.
 // The `req` property is now optional and uses the correct Express type.
@@ -13,5 +14,5 @@ export interface Context {
   role?: string;
   clientId?: string;
   lawyerId?: string;
-  io: any;
+  io: Server;
 }

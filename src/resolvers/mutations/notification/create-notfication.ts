@@ -1,13 +1,13 @@
 // ===== resolvers/notification.ts =====
 import { Notification } from "@/models";
 import { MutationResolvers } from "@/types/generated";
-import { io } from "@/server";
 
 export const createNotification: MutationResolvers["createNotification"] =
-  async (_, { input }) => {
+  async (_, { input }, context) => {
     const notification = await Notification.create(input);
 
-    // Socket.IO realtime мэдэгдэл илгээх
+    const io = context.io;
+    // Socket.IO realtime мэдэгдэл илгcoээх
     io.to(input.recipientId).emit("new-notification", {
       id: notification._id.toString(),
       type: notification.type,

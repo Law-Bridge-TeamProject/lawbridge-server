@@ -6,7 +6,7 @@ export const deleteReview: MutationResolvers["deleteReview"] = async (
   { reviewId },
   context
 ) => {
-  const { clientId } = context;
+  const clientId = context.clientId;
   if (!clientId) throw new Error("Unauthorized: Client not authenticated");
 
   const review = await Review.findById(reviewId);

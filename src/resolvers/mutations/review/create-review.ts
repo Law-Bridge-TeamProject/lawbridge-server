@@ -7,7 +7,8 @@ export const createReview: MutationResolvers["createReview"] = async (
   { input },
   context
 ) => {
-  const { clientId, lawyerId } = context;
+  const clientId = context.clientId;
+  const lawyerId = context.lawyerId;
 
   if (!clientId) throw new Error("Unauthorized: Client not authenticated");
   if (!lawyerId) throw new Error("Unauthorized: Lawyer not authenticated");

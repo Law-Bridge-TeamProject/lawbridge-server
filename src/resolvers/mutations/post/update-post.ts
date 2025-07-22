@@ -9,7 +9,7 @@ export const updatePost: MutationResolvers["updatePost"] = async (
   { postId, input },
   context
 ) => {
-  const { lawyerId } = context;
+  const  lawyerId  = context.lawyerId;
   if (!lawyerId) {
     throw new GraphQLError(
       "Unauthorized: You must be logged in to update a post.",
