@@ -14,6 +14,7 @@ export const getSpecializationsByLawyer: QueryResolvers["getSpecializationsByLaw
         specializationId: spec.specializationId.toString(),
         subscription: spec.subscription,
         pricePerHour: spec.pricePerHour,
+        categoryName: spec.categoryName,
       }));
     } catch (error) {
       throw new GraphQLError("Failed to fetch specializations");
