@@ -3,10 +3,10 @@ import { Lawyer as LawyerModel } from "@/models";
 
 export const getLawyerById: QueryResolvers["getLawyerById"] = async (
   _,
-  { lawyerId },
-  context
+  { lawyerId }
 ) => {
-  const lawyer = await LawyerModel.findById(lawyerId)
+  // Use the Clerk user ID, not MongoDB _id
+  const lawyer = await LawyerModel.findOne({ lawyerId })
     .populate("specialization")
     .populate("achievements")
     .lean();
@@ -14,10 +14,19 @@ export const getLawyerById: QueryResolvers["getLawyerById"] = async (
   if (!lawyer) {
     throw new Error("Lawyer not found");
   }
-
   return {
-    ...lawyer,
     id: lawyer._id.toString(),
+    _id: lawyer._id.toString(),
+    lawyerId: lawyer.lawyerId,
+    clerkUserId: lawyer.clerkUserId,
+    clientId: lawyer.clientId,
+    firstName: lawyer.firstName,
+    lastName: lawyer.lastName,
+    email: lawyer.email,
+    licenseNumber: lawyer.licenseNumber,
+    bio: lawyer.bio,
+    university: lawyer.university,
+    profilePicture: lawyer.profilePicture,
     specialization: lawyer.specialization.map((s: any) => ({
       ...s,
       id: s._id.toString(),
@@ -26,5 +35,8 @@ export const getLawyerById: QueryResolvers["getLawyerById"] = async (
       ...a,
       id: a._id.toString(),
     })),
+    createdAt: lawyer.createdAt?.toISOString?.() ?? lawyer.createdAt,
+    updatedAt: lawyer.updatedAt?.toISOString?.() ?? lawyer.updatedAt,
+    // ...add any other required fields from your GraphQL type
   };
 };
