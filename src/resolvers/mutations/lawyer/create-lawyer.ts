@@ -8,6 +8,7 @@ export const createLawyer: MutationResolvers["createLawyer"] = async (
   { input },
   context
 ) => {
+  
   const lawyerId = context.lawyerId; 
 
   if (!lawyerId) {
