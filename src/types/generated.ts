@@ -172,7 +172,6 @@ export type CreateReviewInput = {
 };
 
 export type CreateSpecializationInput = {
-  categoryName: Scalars['String']['input'];
   lawyerId?: InputMaybe<Scalars['ID']['input']>;
   pricePerHour?: InputMaybe<Scalars['Int']['input']>;
   specializationId: Scalars['ID']['input'];
@@ -717,7 +716,6 @@ export enum ReviewStatus {
 export type Specialization = {
   __typename?: 'Specialization';
   _id: Scalars['ID']['output'];
-  categoryName: Scalars['String']['output'];
   lawyerId: Scalars['ID']['output'];
   pricePerHour?: Maybe<Scalars['Int']['output']>;
   specializationId: Scalars['ID']['output'];
@@ -784,7 +782,6 @@ export type UpdateReviewInput = {
 };
 
 export type UpdateSpecializationInput = {
-  categoryName: Scalars['String']['input'];
   pricePerHour?: InputMaybe<Scalars['Int']['input']>;
   subscription: Scalars['Boolean']['input'];
 };
@@ -1198,7 +1195,6 @@ export type ReviewResolvers<ContextType = Context, ParentType extends ResolversP
 
 export type SpecializationResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Specialization'] = ResolversParentTypes['Specialization']> = {
   _id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
-  categoryName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   lawyerId?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   pricePerHour?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
   specializationId?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
