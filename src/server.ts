@@ -50,18 +50,7 @@ async function startServer() {
   // CORS Configuration
   app.use(
     cors({
-      origin: (origin, callback) => {
-        const allowedOrigins = [
-          "https://studio.apollographql.com",
-          "http://localhost:3000",
-          "*",
-        ];
-        if (!origin || allowedOrigins.includes(origin)) {
-          callback(null, true);
-        } else {
-          callback(new Error("Not allowed by CORS"));
-        }
-      },
+      origin: true, // or origin: "*"
       credentials: true,
     })
   );
