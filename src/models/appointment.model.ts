@@ -9,12 +9,10 @@ enum AppointmentStatus {
 
 type AppointmentSchemaType = {
   clientId: string;
-  lawyerId: Types.ObjectId;
+  lawyerId: string;
   schedule: string;
   status: AppointmentStatus;
   chatRoomId?: Types.ObjectId;
-  price: number;
-  isFree: boolean;
   specializationId: Types.ObjectId;
   createdAt: Date;
   updatedAt: Date;
@@ -24,7 +22,7 @@ type AppointmentSchemaType = {
 const AppointmentSchema = new Schema<AppointmentSchemaType>(
   {
     clientId: { type: String, required: true },
-    lawyerId: { type: Schema.Types.ObjectId, ref: "Lawyer", required: true },
+    lawyerId: { type: String, required: true },
     schedule: { type: String, required: true },
     status: {
       type: String,
@@ -33,8 +31,6 @@ const AppointmentSchema = new Schema<AppointmentSchemaType>(
       required: true,
     },
     chatRoomId: { type: Schema.Types.ObjectId, ref: "ChatRoom" },
-    price: { type: Number },
-    isFree: { type: Boolean, required: true },
     specializationId: {
       type: Schema.Types.ObjectId,
       ref: "Specialization",

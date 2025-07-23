@@ -1,26 +1,19 @@
-import { QueryResolvers, Availability, DayOfWeek } from "@/types/generated";
+import { QueryResolvers } from "@/types/generated";
+import { AvailabilitySchedule } from "@/models";
 
-export const getAvailability:QueryResolvers["getAvailability"] = async (parent: unknown, { lawyerId, day }, context) => {
-
-    const availabilityDocs = await context.db
-      .collection("availabilityschedules")
-      .find({ lawyerId, date: day })
-      .toArray();
-
-    interface AvailabilityDoc {
-        _id: { toString(): string };
-        lawyerId: string;
-        date: string;
-        startTime: string;
-        endTime: string;
-    }
-
-    const availabilities: Availability[] = (availabilityDocs as AvailabilityDoc[]).map((doc: AvailabilityDoc): Availability => ({
-        lawyerId: doc.lawyerId,
-        day: doc.date as DayOfWeek, 
-        startTime: doc.startTime,
-        endTime: doc.endTime,
-    }));
-
-    return availabilities;
-}
+export const getAvailability: QueryResolvers["getAvailability"] = async (
+  _,
+  { lawyerId },
+) => {
+  const schedule = await (AvailabilitySchedule as any).findOne({ lawyerId });
+  if (!schedule) {
+    return [];
+  }
+  return schedule.availableDays.map((dayObj: any) => ({
+    lawyerId: schedule.lawyerId,
+    day: dayObj.day,
+    startTime: dayObj.startTime,
+    endTime: dayObj.endTime,
+    availableDays: [], // Only if required by your Availability type
+  }));
+};

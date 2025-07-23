@@ -7,9 +7,7 @@ export const appointmentTypeDefs = gql`
     schedule: String!
     status: AppointmentStatus!
     chatRoomId: String
-    price: Int
-    isFree: Boolean!
-    specializationId: String!
+    specializationId: Specialization # <-- Add this for population
     createdAt: String
     endedAt: String
   }
@@ -25,9 +23,8 @@ export const appointmentTypeDefs = gql`
     schedule: String!
     createdAt: String!
     endedAt: String!
+    specializationId: Specialization
   }
-
-  
 
   type Query {
     getAppointments: [Appointment]

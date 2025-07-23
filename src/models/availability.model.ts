@@ -1,31 +1,17 @@
-import { Schema, model, Model, models, Types } from "mongoose";
+import { Schema, model, models } from "mongoose";
 
-enum DayOfWeek {
-  MONDAY = "MONDAY",
-  TUESDAY = "TUESDAY",
-  WEDNESDAY = "WEDNESDAY",
-  THURSDAY = "THURSDAY",
-  FRIDAY = "FRIDAY",
-  SATURDAY = "SATURDAY",
-  SUNDAY = "SUNDAY",
-}
-type AvailabilityScheduleSchemaType = {
-    lawyerId: Types.ObjectId; 
-    day: DayOfWeek;
-    startTime: string; 
-    endTime: string; 
-};
+const availableDaySchema = new Schema(
+  {
+    day: String,
+    startTime: String,
+    endTime: String,
+  },
+  { _id: false } // Prevents Mongoose from creating _id for subdocs
+);
 
-const AvailabilityScheduleSchema = new Schema<AvailabilityScheduleSchemaType>({
-    lawyerId: { type: Schema.Types.ObjectId, ref: 'Lawyer', required: true },
-    day: {
-      enum: Object.values(DayOfWeek),
-      type: String,
-      required: true
-    },
-    startTime: { type: String, required: true }, 
-    endTime: { type: String, required: true },   
-  },{timestamps: true});
-  
-  export const AvailabilitySchedule: Model<AvailabilityScheduleSchemaType> =
-    models["AvailabilitySchedule"] || model("AvailabilitySchedule", AvailabilityScheduleSchema);
+const availabilityScheduleSchema = new Schema({
+  lawyerId: { type: String, required: true },
+  availableDays: [availableDaySchema], // <-- Use a plain array of objects
+});
+
+export const AvailabilitySchedule = models.AvailabilitySchedule || model("AvailabilitySchedule", availabilityScheduleSchema);

@@ -1,33 +1,42 @@
 import { gql } from "graphql-tag";
 
 export const availabilityTypeDefs = gql`
-  enum DayOfWeek {
-    MONDAY
-    TUESDAY
-    WEDNESDAY
-    THURSDAY
-    FRIDAY
-    SATURDAY
-    SUNDAY
-  }
 
   type Availability {
     lawyerId: String!
-    day: DayOfWeek!
+    day: String!
+    startTime: String!
+    endTime: String!
+    availableDays: [String!]!
+  }
+
+  type AvailableDay {
+    day: String!
     startTime: String!
     endTime: String!
   }
 
+  type AvailabilitySchedule {
+    _id: ID!
+    lawyerId: String!
+    availableDays: [AvailableDay!]!
+  }
+
+  input AvailableDayInput {
+    day: String!
+    startTime: String!
+    endTime: String!
+  }
+
+  input SetAvailabilityInput {
+    availableDays: [AvailableDayInput!]!
+  }
+
   type Query {
-    getAvailability(lawyerId: String!, day: DayOfWeek!): [Availability]
+    getAvailability(lawyerId: String, day: String): [Availability]
   }
 
   type Mutation {
-    setAvailability(
-      lawyerId: String!
-      day: DayOfWeek!
-      startTime: String!
-      endTime: String!
-    ): Availability
+    setAvailability(input: SetAvailabilityInput!): AvailabilitySchedule!
   }
 `;
