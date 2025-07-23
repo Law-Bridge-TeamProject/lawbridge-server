@@ -16,7 +16,6 @@ export const lawyerSpecializationTypeDefs = gql`
     specializationId: ID!
     subscription: Boolean!
     pricePerHour: Int
-    categoryName: String!
   }
 
   input SpecializationInput {
