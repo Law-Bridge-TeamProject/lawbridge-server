@@ -108,7 +108,7 @@ GUIDELINES:
 - If the user asks about a specific legal concept, provide the concept and its explanation
 - If the user asks about a specific legal issue, provide the issue and its explanation
 - If the user asks about a specific legal topic, provide the topic and its explanation
-- Try to answer in question's asked language
+- Try to answer in mongolian language
 
 IMPORTANT: This is for informational purposes only and does not constitute legal advice.
 
