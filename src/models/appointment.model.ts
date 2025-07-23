@@ -4,7 +4,7 @@ enum AppointmentStatus {
   PENDING = "PENDING",
   CONFIRMED = "CONFIRMED",
   COMPLETED = "COMPLETED",
-  CANCELED = "CANCELED",
+  CANCELLED = "CANCELLED",
 }
 
 type AppointmentSchemaType = {
@@ -14,6 +14,13 @@ type AppointmentSchemaType = {
   status: AppointmentStatus;
   chatRoomId?: Types.ObjectId;
   specializationId: Types.ObjectId;
+  slot: {
+    day: string;
+    startTime: string;
+    endTime: string;
+    booked: boolean;
+  };
+  notes?: string;
   createdAt: Date;
   updatedAt: Date;
   endedAt: Date;
@@ -33,9 +40,16 @@ const AppointmentSchema = new Schema<AppointmentSchemaType>(
     chatRoomId: { type: Schema.Types.ObjectId, ref: "ChatRoom" },
     specializationId: {
       type: Schema.Types.ObjectId,
-      ref: "Specialization",
+      ref: "LawyerSpecialization",
       required: true,
     },
+    slot: {
+      day: { type: String, required: true },
+      startTime: { type: String, required: true },
+      endTime: { type: String, required: true },
+      booked: { type: Boolean, default: true },
+    },
+    notes: { type: String },
   },
   { timestamps: true }
 );

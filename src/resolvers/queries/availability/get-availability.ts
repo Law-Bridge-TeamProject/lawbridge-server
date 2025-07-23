@@ -3,17 +3,21 @@ import { AvailabilitySchedule } from "@/models";
 
 export const getAvailability: QueryResolvers["getAvailability"] = async (
   _,
-  { lawyerId },
+  { lawyerId }
 ) => {
   const schedule = await (AvailabilitySchedule as any).findOne({ lawyerId });
   if (!schedule) {
     return [];
   }
-  return schedule.availableDays.map((dayObj: any) => ({
-    lawyerId: schedule.lawyerId,
-    day: dayObj.day,
-    startTime: dayObj.startTime,
-    endTime: dayObj.endTime,
-    availableDays: [], // Only if required by your Availability type
-  }));
+  return [
+    {
+      lawyerId: schedule.lawyerId,
+      availableDays: schedule.availableDays.map((dayObj: any) => ({
+        day: dayObj.day,
+        startTime: dayObj.startTime,
+        endTime: dayObj.endTime,
+        booked: dayObj.booked,
+      })),
+    },
+  ];
 };

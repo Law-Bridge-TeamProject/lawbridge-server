@@ -38,7 +38,7 @@ export const buildContext = async (req: Request): Promise<Context> => {
         console.warn("❓ Unknown or missing role in token.");
       }
 
-      if (role === "client") {
+      if (role === "user") {
         clientId = userId;
       } else if (role === "lawyer") {
         lawyerId = userId;

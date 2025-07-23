@@ -51,24 +51,28 @@ export type Appointment = {
   clientId: Scalars['String']['output'];
   createdAt?: Maybe<Scalars['String']['output']>;
   endedAt?: Maybe<Scalars['String']['output']>;
+  id: Scalars['ID']['output'];
   lawyerId: Scalars['String']['output'];
-  schedule: Scalars['String']['output'];
-  specializationId?: Maybe<Specialization>;
+  notes?: Maybe<Scalars['String']['output']>;
+  price?: Maybe<Scalars['Int']['output']>;
+  slot: AvailableDay;
+  specialization?: Maybe<Specialization>;
+  specializationId: Scalars['ID']['output'];
   status: AppointmentStatus;
+  subscription: Scalars['Boolean']['output'];
 };
 
 export enum AppointmentStatus {
+  Cancelled = 'CANCELLED',
   Completed = 'COMPLETED',
+  Confirmed = 'CONFIRMED',
   Pending = 'PENDING'
 }
 
 export type Availability = {
   __typename?: 'Availability';
-  availableDays: Array<Scalars['String']['output']>;
-  day: Scalars['String']['output'];
-  endTime: Scalars['String']['output'];
+  availableDays: Array<AvailableDay>;
   lawyerId: Scalars['String']['output'];
-  startTime: Scalars['String']['output'];
 };
 
 export type AvailabilitySchedule = {
@@ -80,6 +84,7 @@ export type AvailabilitySchedule = {
 
 export type AvailableDay = {
   __typename?: 'AvailableDay';
+  booked: Scalars['Boolean']['output'];
   day: Scalars['String']['output'];
   endTime: Scalars['String']['output'];
   startTime: Scalars['String']['output'];
@@ -135,11 +140,10 @@ export type CreateAchievementInput = {
 
 export type CreateAppointmentInput = {
   clientId: Scalars['String']['input'];
-  createdAt: Scalars['String']['input'];
-  endedAt: Scalars['String']['input'];
   lawyerId: Scalars['String']['input'];
-  schedule: Scalars['String']['input'];
-  specializationId?: InputMaybe<Specialization>;
+  notes?: InputMaybe<Scalars['String']['input']>;
+  slot: AvailableDayInput;
+  specializationId: Scalars['ID']['input'];
 };
 
 export type CreateChatRoomInput = {
@@ -311,6 +315,7 @@ export type Mutation = {
   saveChatHistory: ChatHistory;
   setAvailability: AvailabilitySchedule;
   updateAchievement: Achievement;
+  updateAvailabilityDate: AvailabilitySchedule;
   updateChatRoom: ChatRoom;
   updateComment: Comment;
   updateLawyer: Lawyer;
@@ -450,6 +455,11 @@ export type MutationSetAvailabilityArgs = {
 
 export type MutationUpdateAchievementArgs = {
   input: UpdateAchievementInput;
+};
+
+
+export type MutationUpdateAvailabilityDateArgs = {
+  input: UpdateAvailabilityDateInput;
 };
 
 
@@ -757,6 +767,16 @@ export type UpdateAchievementInput = {
   title?: InputMaybe<Scalars['String']['input']>;
 };
 
+export type UpdateAvailabilityDateInput = {
+  lawyerId: Scalars['String']['input'];
+  newDay: Scalars['String']['input'];
+  newEndTime: Scalars['String']['input'];
+  newStartTime: Scalars['String']['input'];
+  oldDay: Scalars['String']['input'];
+  oldEndTime: Scalars['String']['input'];
+  oldStartTime: Scalars['String']['input'];
+};
+
 export type UpdateChatRoomInput = {
   _id: Scalars['String']['input'];
   allowedMedia?: InputMaybe<AllowedMediaEnum>;
@@ -922,6 +942,7 @@ export type ResolversTypes = {
   String: ResolverTypeWrapper<Scalars['String']['output']>;
   Subscription: ResolverTypeWrapper<{}>;
   UpdateAchievementInput: UpdateAchievementInput;
+  UpdateAvailabilityDateInput: UpdateAvailabilityDateInput;
   UpdateChatRoomInput: UpdateChatRoomInput;
   UpdateCommentInput: UpdateCommentInput;
   UpdateLawyerInput: UpdateLawyerInput;
@@ -981,6 +1002,7 @@ export type ResolversParentTypes = {
   String: Scalars['String']['output'];
   Subscription: {};
   UpdateAchievementInput: UpdateAchievementInput;
+  UpdateAvailabilityDateInput: UpdateAvailabilityDateInput;
   UpdateChatRoomInput: UpdateChatRoomInput;
   UpdateCommentInput: UpdateCommentInput;
   UpdateLawyerInput: UpdateLawyerInput;
@@ -1009,19 +1031,21 @@ export type AppointmentResolvers<ContextType = Context, ParentType extends Resol
   clientId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   createdAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   endedAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   lawyerId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  schedule?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  specializationId?: Resolver<Maybe<ResolversTypes['Specialization']>, ParentType, ContextType>;
+  notes?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  price?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  slot?: Resolver<ResolversTypes['AvailableDay'], ParentType, ContextType>;
+  specialization?: Resolver<Maybe<ResolversTypes['Specialization']>, ParentType, ContextType>;
+  specializationId?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   status?: Resolver<ResolversTypes['AppointmentStatus'], ParentType, ContextType>;
+  subscription?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
 export type AvailabilityResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Availability'] = ResolversParentTypes['Availability']> = {
-  availableDays?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
-  day?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  endTime?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  availableDays?: Resolver<Array<ResolversTypes['AvailableDay']>, ParentType, ContextType>;
   lawyerId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  startTime?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -1033,6 +1057,7 @@ export type AvailabilityScheduleResolvers<ContextType = Context, ParentType exte
 };
 
 export type AvailableDayResolvers<ContextType = Context, ParentType extends ResolversParentTypes['AvailableDay'] = ResolversParentTypes['AvailableDay']> = {
+  booked?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   day?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   endTime?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   startTime?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
@@ -1145,6 +1170,7 @@ export type MutationResolvers<ContextType = Context, ParentType extends Resolver
   saveChatHistory?: Resolver<ResolversTypes['ChatHistory'], ParentType, ContextType, RequireFields<MutationSaveChatHistoryArgs, 'input'>>;
   setAvailability?: Resolver<ResolversTypes['AvailabilitySchedule'], ParentType, ContextType, RequireFields<MutationSetAvailabilityArgs, 'input'>>;
   updateAchievement?: Resolver<ResolversTypes['Achievement'], ParentType, ContextType, RequireFields<MutationUpdateAchievementArgs, 'input'>>;
+  updateAvailabilityDate?: Resolver<ResolversTypes['AvailabilitySchedule'], ParentType, ContextType, RequireFields<MutationUpdateAvailabilityDateArgs, 'input'>>;
   updateChatRoom?: Resolver<ResolversTypes['ChatRoom'], ParentType, ContextType, RequireFields<MutationUpdateChatRoomArgs, 'input'>>;
   updateComment?: Resolver<ResolversTypes['Comment'], ParentType, ContextType, RequireFields<MutationUpdateCommentArgs, 'input'>>;
   updateLawyer?: Resolver<ResolversTypes['Lawyer'], ParentType, ContextType, RequireFields<MutationUpdateLawyerArgs, 'input' | 'lawyerId'>>;

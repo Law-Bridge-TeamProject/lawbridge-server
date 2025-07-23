@@ -1,50 +1,86 @@
-import { QueryResolvers } from "@/types/generated";
+import { QueryResolvers, AppointmentStatus } from "@/types/generated";
 import { Appointment } from "@/models";
+import { LawyerSpecialization } from "@/models/lawyer-specialization.model";
 
 export const getAppointmentById: QueryResolvers["getAppointmentById"] = async (
   _,
-  { id },
-  context
+  { id }
 ) => {
-  const appointment = await Appointment.findById(id)
-    .populate("specializationId")
-    .populate("specialization-lawyer")
-    .lean();
+  // 1. Fetch the appointment by ID
+  const appointment = await Appointment.findById(id).lean();
+  console.log('Fetched appointment:', appointment);
   if (!appointment) {
     return null;
   }
+
+  // 2. Fetch and populate LawyerSpecialization and nested Specialization
+  console.log('Appointment.specializationId:', appointment.specializationId);
+  let lawyerSpec = null;
+  let nestedSpec = null;
+  if (appointment.specializationId) {
+    lawyerSpec = await LawyerSpecialization.findById(appointment.specializationId)
+      .populate("specializationId")
+      .lean();
+    console.log('Fetched lawyerSpec:', lawyerSpec);
+    nestedSpec = lawyerSpec?.specializationId as any;
+  }
+
+  // 3. Always return a non-null slot object
+  let slotObj;
+  if (
+    appointment.slot &&
+    typeof appointment.slot === "object" &&
+    typeof appointment.slot.day === "string" &&
+    typeof appointment.slot.startTime === "string" &&
+    typeof appointment.slot.endTime === "string"
+  ) {
+    slotObj = {
+      day: appointment.slot.day,
+      startTime: appointment.slot.startTime,
+      endTime: appointment.slot.endTime,
+      booked: Boolean(appointment.slot.booked),
+    };
+  } else {
+    slotObj = {
+      day: "",
+      startTime: "",
+      endTime: "",
+      booked: false,
+    };
+  }
+
+  // 4. Build the specialization object if available
+  let specializationObj = null;
+  if (lawyerSpec) {
+    specializationObj = {
+      _id: (lawyerSpec as any)?._id ? String((lawyerSpec as any)._id) : "",
+      lawyerId: (lawyerSpec as any)?.lawyerId ? String((lawyerSpec as any).lawyerId) : "",
+      specializationId:
+        (lawyerSpec as any)?.specializationId && (lawyerSpec as any).specializationId._id
+          ? String((lawyerSpec as any).specializationId._id)
+          : (lawyerSpec as any)?.specializationId
+          ? String((lawyerSpec as any).specializationId)
+          : "",
+      categoryName: nestedSpec?.categoryName ?? "",
+      pricePerHour: (lawyerSpec as any)?.pricePerHour ?? 0,
+      subscription: Boolean((lawyerSpec as any)?.subscription),
+    };
+  }
+
+  // 5. Return the full Appointment object
   return {
-    ...appointment,
-    id: appointment._id.toString(),
-    chatRoomId: appointment.chatRoomId
-      ? appointment.chatRoomId.toString()
-      : null,
-    specializationId: appointment.specializationId?._id
-      ? appointment.specializationId._id.toString()
-      : appointment.specializationId?.toString?.() ?? "",
-    specialization:
-      appointment.specializationId &&
-      typeof appointment.specializationId === "object" &&
-      "categoryName" in appointment.specializationId
-        ? {
-            id: appointment.specializationId._id.toString(),
-            categoryName: appointment.specializationId.categoryName,
-          }
-        : null,
-    specializationLawyer:
-      appointment["specialization-lawyer"] &&
-      typeof appointment["specialization-lawyer"] === "object" &&
-      "_id" in appointment["specialization-lawyer"]
-        ? {
-            id: appointment["specialization-lawyer"]._id.toString(),
-            // Add other fields as needed
-          }
-        : null,
-    createdAt: appointment.createdAt
-      ? new Date(appointment.createdAt).toISOString()
-      : "",
-    endedAt: appointment.endedAt
-      ? new Date(appointment.endedAt).toISOString()
-      : "",
+    id: appointment._id?.toString?.() ?? "",
+    clientId: appointment.clientId?.toString?.() ?? "",
+    lawyerId: appointment.lawyerId?.toString?.() ?? "",
+    status: appointment.status as unknown as AppointmentStatus,
+    chatRoomId: appointment.chatRoomId?.toString?.() ?? null,
+    schedule: appointment.schedule,
+    subscription: Boolean(lawyerSpec?.subscription),
+    specializationId: lawyerSpec?._id ? String(lawyerSpec._id) : "",
+    slot: slotObj,
+    specialization: specializationObj,
+    createdAt: appointment.createdAt ? new Date(appointment.createdAt).toISOString() : "",
+    endedAt: appointment.endedAt ? new Date(appointment.endedAt).toISOString() : "",
+    notes: appointment.notes ?? "",
   };
 };

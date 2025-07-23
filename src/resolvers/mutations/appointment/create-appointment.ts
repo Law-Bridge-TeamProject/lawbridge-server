@@ -1,7 +1,8 @@
 import { Appointment, ChatRoom } from "@/models";
+import { LawyerSpecialization } from "@/models/lawyer-specialization.model";
+import { AvailabilitySchedule } from "@/models/availability.model";
 import {
   MutationResolvers,
-  Appointment as AppointmentType,
   AppointmentStatus,
 } from "@/types/generated";
 
@@ -11,76 +12,94 @@ export const createAppointment: MutationResolvers["createAppointment"] = async (
   context
 ) => {
   try {
-    const { clientId, lawyerId, schedule, specializationId } = input;
+    const { lawyerId, specializationId, slot, notes } = input;
+    const { day, startTime, endTime } = slot;
 
-    // Create the appointment
-    const appointmentDoc = await Appointment.create({
-      clientId: context.clientId,
+    // 1. Atomically check and book the slot
+    const availability = await (AvailabilitySchedule as any).findOneAndUpdate(
+      {
+        lawyerId,
+        "availableDays.day": day,
+        "availableDays.startTime": startTime,
+        "availableDays.endTime": endTime,
+        "availableDays.booked": { $ne: true },
+      },
+      { $set: { "availableDays.$.booked": true } },
+      { new: true }
+    );
+
+    if (!availability) {
+      throw new Error("Selected time slot is not available for this lawyer.");
+    }
+
+    // 2. Find the correct LawyerSpecialization by lawyerId and specializationId
+    const lawyerSpecDoc = await LawyerSpecialization.findOne({
       lawyerId,
-      schedule: new Date(schedule),
-      status: "PENDING",
-      price: 0,
-      isFree: false,
       specializationId,
     });
+    if (!lawyerSpecDoc) {
+      throw new Error("LawyerSpecialization not found for the given lawyer and specialization.");
+    }
 
-    // Create a chatroom for this appointment
+    // 3. Create the appointment using the _id of the LawyerSpecialization
+    const appointmentDoc = await Appointment.create({
+      clientId: context.userId,
+      lawyerId,
+      schedule: new Date().toISOString(),
+      status: "PENDING",
+      isFree: false,
+      specializationId: lawyerSpecDoc._id, // <-- Use LawyerSpecialization _id
+      slot: { day, startTime, endTime, booked: true },
+      notes,
+    });
+
+    // 4. Create chatroom
     const chatRoomDoc = await ChatRoom.create({
-      participants: [context.clientId, lawyerId.toString()],
+      participants: [context.userId, lawyerId.toString()],
       appointmentId: appointmentDoc._id,
     });
 
-    // Link chatroom to appointment
     appointmentDoc.chatRoomId = chatRoomDoc._id;
     await appointmentDoc.save();
 
-    // Populate specializationId
-    const populatedAppointment = await Appointment.findById(appointmentDoc._id)
+    // 5. Populate specialization info
+    const lawyerSpec = await LawyerSpecialization.findById(lawyerSpecDoc._id)
       .populate("specializationId")
       .lean();
+    const nestedSpec = lawyerSpec?.specializationId as any;
 
-    const appointment: AppointmentType = {
-      lawyerId: populatedAppointment.lawyerId.toString(),
-      clientId: populatedAppointment.clientId.toString(),
-      schedule: populatedAppointment.schedule,
-      status:
-        populatedAppointment.status as unknown as AppointmentStatus.Pending,
-      specializationId:
-        populatedAppointment.specializationId &&
-        typeof populatedAppointment.specializationId === "object" &&
-        "categoryName" in (populatedAppointment.specializationId as any)
-          ? {
-              _id: (
-                populatedAppointment.specializationId as any
-              )._id.toString(),
-              categoryName: (populatedAppointment.specializationId as any)
-                .categoryName,
-              lawyerId:
-                (
-                  populatedAppointment.specializationId as any
-                ).lawyerId?.toString?.() ?? "",
-              specializationId:
-                (
-                  populatedAppointment.specializationId as any
-                ).specializationId?.toString?.() ?? "",
-              subscription:
-                (populatedAppointment.specializationId as any).subscription ??
-                false,
-              pricePerHour:
-                (populatedAppointment.specializationId as any).pricePerHour ??
-                null,
-            }
-          : null,
+    let specializationObj = null;
+    if (lawyerSpec) {
+      specializationObj = {
+        _id: (lawyerSpec as any)?._id ? String((lawyerSpec as any)._id) : "",
+        lawyerId: (lawyerSpec as any)?.lawyerId ? String((lawyerSpec as any).lawyerId) : "",
+        specializationId:
+          (lawyerSpec as any)?.specializationId && (lawyerSpec as any).specializationId._id
+            ? String((lawyerSpec as any).specializationId._id)
+            : (lawyerSpec as any)?.specializationId
+            ? String((lawyerSpec as any).specializationId)
+            : "",
+        categoryName: nestedSpec?.categoryName ?? "",
+        pricePerHour: (lawyerSpec as any)?.pricePerHour ?? 0,
+        subscription: Boolean((lawyerSpec as any)?.subscription),
+      };
+    }
+
+    return {
+      id: appointmentDoc._id.toString(),
+      lawyerId: appointmentDoc.lawyerId.toString(),
+      clientId: appointmentDoc.clientId.toString(),
+      schedule: appointmentDoc.schedule,
+      status: appointmentDoc.status as unknown as AppointmentStatus,
+      specializationId: String(lawyerSpecDoc._id),
       chatRoomId: chatRoomDoc._id.toString(),
-      createdAt: populatedAppointment.createdAt
-        ? new Date(populatedAppointment.createdAt).toISOString()
-        : "",
-      endedAt: populatedAppointment.endedAt
-        ? new Date(populatedAppointment.endedAt).toISOString()
-        : "",
+      createdAt: appointmentDoc.createdAt?.toISOString() ?? "",
+      endedAt: appointmentDoc.endedAt?.toISOString() ?? "",
+      subscription: Boolean(lawyerSpec?.subscription),
+      slot: { day, startTime, endTime, booked: true },
+      specialization: specializationObj,
+      notes: appointmentDoc.notes ?? "",
     };
-
-    return appointment;
   } catch (error) {
     console.error("❌ Error creating appointment:", error);
     throw new Error("Failed to create appointment");

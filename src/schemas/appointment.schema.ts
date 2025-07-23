@@ -2,28 +2,47 @@ import { gql } from "graphql-tag";
 
 export const appointmentTypeDefs = gql`
   type Appointment {
+    id: ID!
     clientId: String!
     lawyerId: String!
-    schedule: String!
     status: AppointmentStatus!
     chatRoomId: String
-    specializationId: Specialization # <-- Add this for population
+    price: Int
+    subscription: Boolean!
+    specializationId: ID!
+    slot: AvailableDay!
+    specialization: Specialization
     createdAt: String
     endedAt: String
+    notes: String
   }
 
   enum AppointmentStatus {
     PENDING
+    CONFIRMED
     COMPLETED
+    CANCELLED
+  }
+
+  type AvailableDay {
+    day: String!
+    startTime: String!
+    endTime: String!
+    booked: Boolean!
+  }
+
+  input AvailableDayInput {
+    day: String!
+    startTime: String!
+    endTime: String!
   }
 
   input CreateAppointmentInput {
     clientId: String!
     lawyerId: String!
-    schedule: String!
-    createdAt: String!
-    endedAt: String!
-    specializationId: Specialization
+    specializationId: ID!
+    slot: AvailableDayInput!
+    notes: String
   }
 
   type Query {

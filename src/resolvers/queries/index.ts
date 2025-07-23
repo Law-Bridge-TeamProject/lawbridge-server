@@ -11,3 +11,4 @@ export * from "./achievement";
 export * from "./lawyer";
 export * from "./notification"
 export * from "./chatbot"
+export * from "./appointment"

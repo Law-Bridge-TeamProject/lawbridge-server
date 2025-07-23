@@ -5,6 +5,7 @@ const availableDaySchema = new Schema(
     day: String,
     startTime: String,
     endTime: String,
+    booked: { type: Boolean, default: false },
   },
   { _id: false } // Prevents Mongoose from creating _id for subdocs
 );
