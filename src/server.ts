@@ -48,19 +48,23 @@ async function startServer() {
   const httpServer = createServer(app);
 
   // CORS Configuration
- app.use(
-  cors({
-    origin: (origin, callback) => {
-      const allowedOrigins = ["https://studio.apollographql.com", "http://localhost:3000"];
-      if (!origin || allowedOrigins.includes(origin)) {
-        callback(null, true);
-      } else {
-        callback(new Error("Not allowed by CORS"));
-      }
-    },
-    credentials: true,
-  })
-);
+  app.use(
+    cors({
+      origin: (origin, callback) => {
+        const allowedOrigins = [
+          "https://studio.apollographql.com",
+          "http://localhost:3000",
+          "*",
+        ];
+        if (!origin || allowedOrigins.includes(origin)) {
+          callback(null, true);
+        } else {
+          callback(new Error("Not allowed by CORS"));
+        }
+      },
+      credentials: true,
+    })
+  );
   app.use(clerkMiddleware());
   app.use(express.json());
 
@@ -228,7 +232,7 @@ async function startServer() {
   const io = new SocketIOServer(httpServer, {
     path: "/socket.io",
     cors: {
-      origin: "http://localhost:3000",
+      origin: "*",
       methods: ["GET", "POST"],
       credentials: true,
     },
