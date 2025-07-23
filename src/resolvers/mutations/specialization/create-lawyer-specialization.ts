@@ -11,6 +11,7 @@ export const createSpecialization: MutationResolvers["createSpecialization"] =
         specializationId: s.specializationId,
         subscription: s.subscription,
         pricePerHour: s.pricePerHour,
+        categoryName: s.categoryName,
       }));
 
       const created = await LawyerSpecialization.insertMany(docs);
@@ -21,6 +22,7 @@ export const createSpecialization: MutationResolvers["createSpecialization"] =
         specializationId: spec.specializationId.toString(),
         subscription: spec.subscription,
         pricePerHour: spec.pricePerHour,
+        categoryName: spec.categoryName,
       }));
     } catch (error) {
       console.error("❌ Error creating specializations:", error);
