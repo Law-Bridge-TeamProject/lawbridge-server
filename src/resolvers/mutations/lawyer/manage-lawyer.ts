@@ -1,6 +1,5 @@
 import { MutationResolvers } from "@/types/generated";
-import { Lawyer, VerifiedStatus } from "@/models"; // <--- IMPORT THE ENUM
-import { Context } from "@/types/context";
+import { Lawyer, VerifiedStatus } from "@/models"; // <
 import { clerkClient } from "@clerk/clerk-sdk-node";
 import { GraphQLError } from "graphql";
 

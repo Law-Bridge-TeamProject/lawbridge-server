@@ -4,7 +4,6 @@ export * from "./availability.model";
 export * from "./chatRoom.model";
 export * from "./comment.model";
 export * from "./lawyer.model";
-export * from "./lawyer-request";
 export * from "./message.model";
 export * from "./notfication.model";
 export * from "./post.model";

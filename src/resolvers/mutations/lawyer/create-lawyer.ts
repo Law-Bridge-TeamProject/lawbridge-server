@@ -2,12 +2,11 @@
 
 import { MutationResolvers } from "@/types/generated";
 import { Lawyer as LawyerModel } from "@/models";
-import { Context } from "@/types/context";
 
 export const createLawyer: MutationResolvers["createLawyer"] = async (
   _,
   { input },
-  context: Context
+  context
 ) => {
   const lawyerId = context.lawyerId; 
 
