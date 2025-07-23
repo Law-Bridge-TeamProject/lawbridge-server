@@ -14,17 +14,20 @@ export async function fetchLiveKitToken(
 ): Promise<string> {
   try {
     // ✅ FIX: Use the full URL of your Express backend server
-    const response = await fetch('http://localhost:4000/api/livekit-token', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${clerkToken}`,
-      },
-      // ✅ IMPROVEMENT: Only send the room name. The server will get the user's identity from the token.
-      body: JSON.stringify({
-        room: roomName, // Ensure the key matches what the Express server expects ('room')
-      }),
-    });
+    const response = await fetch(
+      "https://lawbridge-server.onrender.com/api/livekit-token",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${clerkToken}`,
+        },
+        // ✅ IMPROVEMENT: Only send the room name. The server will get the user's identity from the token.
+        body: JSON.stringify({
+          room: roomName, // Ensure the key matches what the Express server expects ('room')
+        }),
+      }
+    );
 
     if (!response.ok) {
       const errorBody = await response.text();
