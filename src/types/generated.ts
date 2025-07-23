@@ -172,7 +172,6 @@ export type CreateReviewInput = {
 };
 
 export type CreateSpecializationInput = {
-  categoryName: Scalars['String']['input'];
   lawyerId?: InputMaybe<Scalars['ID']['input']>;
   pricePerHour?: InputMaybe<Scalars['Int']['input']>;
   specializationId: Scalars['ID']['input'];
@@ -555,6 +554,7 @@ export type Query = {
   getLawyersByStatus: Array<Lawyer>;
   getMessages: Array<Message>;
   getPostById?: Maybe<Post>;
+  getPosts: Array<Post>;
   getPostsByLawyer: Array<Post>;
   getPostsBySpecializationId: Array<Post>;
   getReviewsByLawyer: Array<Review>;
@@ -717,7 +717,7 @@ export enum ReviewStatus {
 export type Specialization = {
   __typename?: 'Specialization';
   _id: Scalars['ID']['output'];
-  categoryName: Scalars['String']['output'];
+  categoryName?: Maybe<Scalars['String']['output']>;
   lawyerId: Scalars['ID']['output'];
   pricePerHour?: Maybe<Scalars['Int']['output']>;
   specializationId: Scalars['ID']['output'];
@@ -784,7 +784,6 @@ export type UpdateReviewInput = {
 };
 
 export type UpdateSpecializationInput = {
-  categoryName: Scalars['String']['input'];
   pricePerHour?: InputMaybe<Scalars['Int']['input']>;
   subscription: Scalars['Boolean']['input'];
 };
@@ -1175,6 +1174,7 @@ export type QueryResolvers<ContextType = Context, ParentType extends ResolversPa
   getLawyersByStatus?: Resolver<Array<ResolversTypes['Lawyer']>, ParentType, ContextType, RequireFields<QueryGetLawyersByStatusArgs, 'status'>>;
   getMessages?: Resolver<Array<ResolversTypes['Message']>, ParentType, ContextType, RequireFields<QueryGetMessagesArgs, 'chatRoomId'>>;
   getPostById?: Resolver<Maybe<ResolversTypes['Post']>, ParentType, ContextType, RequireFields<QueryGetPostByIdArgs, 'postId'>>;
+  getPosts?: Resolver<Array<ResolversTypes['Post']>, ParentType, ContextType>;
   getPostsByLawyer?: Resolver<Array<ResolversTypes['Post']>, ParentType, ContextType, RequireFields<QueryGetPostsByLawyerArgs, 'lawyerId'>>;
   getPostsBySpecializationId?: Resolver<Array<ResolversTypes['Post']>, ParentType, ContextType, RequireFields<QueryGetPostsBySpecializationIdArgs, 'specializationId'>>;
   getReviewsByLawyer?: Resolver<Array<ResolversTypes['Review']>, ParentType, ContextType, RequireFields<QueryGetReviewsByLawyerArgs, 'lawyerId'>>;
@@ -1198,7 +1198,7 @@ export type ReviewResolvers<ContextType = Context, ParentType extends ResolversP
 
 export type SpecializationResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Specialization'] = ResolversParentTypes['Specialization']> = {
   _id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
-  categoryName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  categoryName?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   lawyerId?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   pricePerHour?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
   specializationId?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
