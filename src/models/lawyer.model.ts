@@ -46,6 +46,7 @@ const LawyerSchema = new Schema<LawyerSchemaType>(
     specialization: [
       { type: Schema.Types.ObjectId, ref: "LawyerSpecialization" },
     ],
+    bio: { type: String, required: false },
     // category
     achievements: [{ type: Schema.Types.ObjectId, ref: "Achievement" }],
     status: {

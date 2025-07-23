@@ -12,6 +12,7 @@ export const getSpecializationsByLawyer: QueryResolvers["getSpecializationsByLaw
         _id: spec._id.toString(),
         lawyerId: spec.lawyerId.toString(),
         specializationId: spec.specializationId.toString(),
+        categoryName: spec.categoryName,
         subscription: spec.subscription,
         pricePerHour: spec.pricePerHour,
       }));

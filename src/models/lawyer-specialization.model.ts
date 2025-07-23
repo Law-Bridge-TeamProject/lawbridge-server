@@ -6,6 +6,7 @@ export type lawyerSpecializationType = {
   specializationId: Schema.Types.ObjectId;
   pricePerHour: number;
   subscription: boolean;
+  categoryName: string;
 };
 
 const lawyerSpecializationSchema = new Schema<lawyerSpecializationType>({
@@ -13,6 +14,7 @@ const lawyerSpecializationSchema = new Schema<lawyerSpecializationType>({
   specializationId: { type: Schema.Types.ObjectId, ref: "Specialization", required: true },
   pricePerHour: { type: Number },
   subscription: { type: Boolean, required: true },
+  categoryName: { type: String, required: true },
 });
 
 export const LawyerSpecialization: Model<lawyerSpecializationType> =
