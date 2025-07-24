@@ -15,9 +15,10 @@ export const createSpecialization: MutationResolvers["createSpecialization"] =
 
       // Insert and populate
       let created = await LawyerSpecialization.insertMany(docs);
+      console.log({ created });
       let populated = (await LawyerSpecialization.populate(created as any, {
         path: "specializationId",
-      }) as unknown) as any[];
+      })) as unknown as any[];
 
       return populated.map((spec) => {
         // Always return specializationId as a string
@@ -27,8 +28,8 @@ export const createSpecialization: MutationResolvers["createSpecialization"] =
           "_id" in (spec.specializationId as any)
             ? (spec.specializationId as any)._id.toString()
             : spec.specializationId
-              ? spec.specializationId.toString()
-              : "";
+            ? spec.specializationId.toString()
+            : "";
 
         // Get categoryName from populated specializationId
         const categoryName =

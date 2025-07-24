@@ -5,19 +5,12 @@ import { Lawyer as LawyerModel } from "@/models";
 
 export const createLawyer: MutationResolvers["createLawyer"] = async (
   _,
-  { input },
-  context
+  { input }
 ) => {
-  const lawyerId = context.lawyerId;
+  const lawyerId = input.lawyerId;
 
   if (!lawyerId) {
-    throw new Error(
-      "Authentication failed: Lawyer ID is missing from context."
-    );
-  }
-
-  if (!lawyerId) {
-    console.error("❌ context.lawyerId not found");
+    console.error("❌ input.lawyerId not found");
     throw new Error("Authentication required. Clerk lawyerId missing.");
   }
 
