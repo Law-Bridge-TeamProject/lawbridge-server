@@ -15,7 +15,7 @@ export async function fetchLiveKitToken(
   try {
     // ✅ FIX: Use the full URL of your Express backend server
     const response = await fetch(
-      "https://lawbridge-server.onrender.com/api/livekit-token",
+      "http://localhost:4000/api/livekit-token",
       {
         method: "POST",
         headers: {

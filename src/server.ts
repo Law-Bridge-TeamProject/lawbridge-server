@@ -59,6 +59,10 @@ async function startServer() {
 
   // LiveKit Token Endpoint
   app.post("/api/livekit-token", async (req, res) => {
+    console.log("[/api/livekit-token] Request received:", {
+      headers: req.headers,
+      body: req.body,
+    });
     try {
       const { userId } = getAuth(req);
       if (!userId) {
