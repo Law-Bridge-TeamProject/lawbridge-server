@@ -2,19 +2,12 @@ import { Post } from "@/models";
 import { MutationResolvers, MediaType } from "@/types/generated";
 import { GraphQLError } from "graphql";
 
-export const createPost: MutationResolvers["createPost"] = async (
-  _: unknown,
-  { input },
-  context
-) => {
+export const createPost: MutationResolvers["createPost"] = async (_: unknown, { input }, context) => {
   const lawyerId = context.lawyerId;
   if (!lawyerId) {
-    throw new GraphQLError(
-      "Unauthorized: You must be an authenticated lawyer to create a post.",
-      {
-        extensions: { code: "UNAUTHENTICATED" },
-      }
-    );
+    throw new GraphQLError("Unauthorized: You must be an authenticated lawyer to create a post.", {
+      extensions: { code: "UNAUTHENTICATED" },
+    });
   }
 
   let postType = MediaType.Text;
@@ -31,7 +24,7 @@ export const createPost: MutationResolvers["createPost"] = async (
       type: postType,
     });
 
-    await newPost.populate("LawyerSpecialization");
+    await newPost.populate("specialization");
 
     return newPost as any;
   } catch (error) {
