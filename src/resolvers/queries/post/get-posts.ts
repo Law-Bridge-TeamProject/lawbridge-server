@@ -12,19 +12,16 @@ export const getPosts: QueryResolvers["getPosts"] = async () => {
     lawyerId: post.lawyerId,
     title: post.title,
     content: post.content,
-    specialization: (post.specialization || [])
-      .filter((s) => typeof s === "object" && s !== null && Object.prototype.hasOwnProperty.call(s, "categoryName"))
-      .map((s) => {
-        const spec = s as any;
-        return {
-          id: spec._id.toString(),
-          _id: spec._id.toString(),
-          categoryName: spec.categoryName,
-          // ...add other required fields here
-        };
-      }),
+    specialization: (post.specialization || []).map((s) => {
+      const spec = s as any;
+      return {
+        id: spec._id.toString(),
+        _id: spec._id.toString(),
+        categoryName: spec.categoryName,
+      };
+    }),
     type: post.type as any, // Cast to MediaType if needed
     createdAt: post.createdAt,
     updatedAt: post.updatedAt,
   }));
-}; 
+};
