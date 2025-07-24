@@ -8,8 +8,7 @@ export const createLawyer: MutationResolvers["createLawyer"] = async (
   { input },
   context
 ) => {
-  
-  const lawyerId = context.lawyerId; 
+  const lawyerId = context.lawyerId;
 
   if (!lawyerId) {
     throw new Error(
@@ -27,7 +26,7 @@ export const createLawyer: MutationResolvers["createLawyer"] = async (
       ...input,
       lawyerId: lawyerId,
       clerkUserId: lawyerId,
-      clientId: lawyerId
+      clientId: lawyerId,
     };
 
     const newLawyer = await LawyerModel.create(lawyerData);
@@ -43,7 +42,7 @@ export const createLawyer: MutationResolvers["createLawyer"] = async (
       );
     }
 
-    return populatedLawyer.toObject() as any; 
+    return populatedLawyer.toObject() as any;
   } catch (error: any) {
     console.error("--- Create Lawyer Resolver Failed ---", error);
 
