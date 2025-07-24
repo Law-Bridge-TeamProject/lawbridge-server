@@ -31,7 +31,7 @@ export const lawyerTypeDefs = gql`
     licenseNumber: String!
     bio: String
     university: String
-    # specialization: [Specialization!]!   # <<== Шинэ бүтэц
+    specialization: [Specialization!]! # <<== Шинэ бүтэц
     achievements: [Achievement!]!
     status: LawyerRequestStatus
     document: String
