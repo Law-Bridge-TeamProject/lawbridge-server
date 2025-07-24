@@ -21,16 +21,25 @@ export const getAppointmentById: QueryResolvers["getAppointmentById"] = async (
   }
 
   return {
-    _id: appointment._id.toString(),
-    clientId: appointment.clientClerkId ?? "", // ⚠️ Та clientId биш clientClerkId гэж хадгалсан байж магадгүй
-    lawyerId: appointment.lawyerId.toString?.() ?? "", // ObjectId бол toString ашиглана
+    id: appointment._id.toString(),
+    clientId: appointment.clientClerkId ?? "",
+    lawyerId: appointment.lawyerId?.toString?.() ?? "",
     schedule:
       appointment.schedule instanceof Date
         ? appointment.schedule.toISOString()
         : appointment.schedule ?? "",
     status: appointment.status,
     chatRoomId: appointment.chatRoomId?.toString?.() ?? null,
-    createdAt: appointment.createdAt?.toISOString?.() ?? null,
-    updatedAt: appointment.updatedAt?.toISOString?.() ?? null,
+    createdAt: appointment.createdAt?.toISOString?.() ?? "",
+    endedAt: appointment.endedAt?.toISOString?.() ?? "",
+    slot: appointment.slot ?? {
+      day: "",
+      startTime: "",
+      endTime: "",
+      booked: false,
+    },
+    specializationId: appointment.specializationId?.toString?.() ?? "",
+    subscription: appointment.subscription ?? false,
+    // Add other required fields as needed
   };
 };

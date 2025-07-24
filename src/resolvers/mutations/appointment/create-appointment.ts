@@ -1,10 +1,7 @@
 import { Appointment, ChatRoom } from "@/models";
 import { LawyerSpecialization } from "@/models/lawyer-specialization.model";
 import { AvailabilitySchedule } from "@/models/availability.model";
-import {
-  MutationResolvers,
-  AppointmentStatus,
-} from "@/types/generated";
+import { MutationResolvers, AppointmentStatus } from "@/types/generated";
 
 export const createAppointment: MutationResolvers["createAppointment"] = async (
   _,
@@ -22,7 +19,7 @@ export const createAppointment: MutationResolvers["createAppointment"] = async (
         "availableDays.day": day,
         "availableDays.startTime": startTime,
         "availableDays.endTime": endTime,
-        "availableDays.booked": { $ne: true },
+        "availableDays.booked": false,
       },
       { $set: { "availableDays.$.booked": true } },
       { new: true }
@@ -37,8 +34,11 @@ export const createAppointment: MutationResolvers["createAppointment"] = async (
       lawyerId,
       specializationId,
     });
+
     if (!lawyerSpecDoc) {
-      throw new Error("LawyerSpecialization not found for the given lawyer and specialization.");
+      throw new Error(
+        "LawyerSpecialization not found for the given lawyer and specialization."
+      );
     }
 
     // 3. Create the appointment using the _id of the LawyerSpecialization
@@ -72,9 +72,12 @@ export const createAppointment: MutationResolvers["createAppointment"] = async (
     if (lawyerSpec) {
       specializationObj = {
         _id: (lawyerSpec as any)?._id ? String((lawyerSpec as any)._id) : "",
-        lawyerId: (lawyerSpec as any)?.lawyerId ? String((lawyerSpec as any).lawyerId) : "",
+        lawyerId: (lawyerSpec as any)?.lawyerId
+          ? String((lawyerSpec as any).lawyerId)
+          : "",
         specializationId:
-          (lawyerSpec as any)?.specializationId && (lawyerSpec as any).specializationId._id
+          (lawyerSpec as any)?.specializationId &&
+          (lawyerSpec as any).specializationId._id
             ? String((lawyerSpec as any).specializationId._id)
             : (lawyerSpec as any)?.specializationId
             ? String((lawyerSpec as any).specializationId)

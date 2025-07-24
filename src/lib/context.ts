@@ -29,7 +29,7 @@ export const buildContext = async (req: Request): Promise<Context> => {
   }
 
   if (role === "user") {
-    clientId = authHeader;
+    userId = authHeader;
   } else if (role === "lawyer") {
     lawyerId = authHeader;
   }

@@ -4,12 +4,12 @@
  * Fetches a LiveKit access token from the EXTERNAL Express server.
  * This function runs on the CLIENT.
  *
- * @param roomName - The name of the room to join.
+ * @param chatRoomId - The name of the room to join.
  * @param clerkToken - The user's JWT from Clerk to authenticate with the Express backend.
  * @returns {Promise<string>} - The LiveKit access token.
  */
 export async function fetchLiveKitToken(
-  roomName: string,
+  chatRoomId: string,
   clerkToken: string // We no longer need participantIdentity
 ): Promise<string> {
   try {
@@ -24,7 +24,7 @@ export async function fetchLiveKitToken(
         },
         // ✅ IMPROVEMENT: Only send the room name. The server will get the user's identity from the token.
         body: JSON.stringify({
-          room: roomName, // Ensure the key matches what the Express server expects ('room')
+          room: chatRoomId, // Ensure the key matches what the Express server expects ('room')
         }),
       }
     );
