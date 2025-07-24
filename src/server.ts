@@ -50,7 +50,7 @@ async function startServer() {
   // CORS Configuration
   app.use(
     cors({
-      origin: "*", // or origin: "*"
+      origin: ["http://localhost:3000", "https://lawbridge-server.onrender.com"], // or origin: "*"
       credentials: true,
     })
   );
@@ -225,7 +225,7 @@ async function startServer() {
   const io = new SocketIOServer(httpServer, {
     path: "/socket.io",
     cors: {
-      origin: "*",
+      origin: ["http://localhost:3000", "https://lawbridge-server.onrender.com"],
       methods: ["GET", "POST"],
       credentials: true,
     },
