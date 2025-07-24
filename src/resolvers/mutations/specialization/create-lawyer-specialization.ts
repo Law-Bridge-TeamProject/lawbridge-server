@@ -10,7 +10,7 @@ export const createSpecialization: MutationResolvers["createSpecialization"] =
         lawyerId: context.lawyerId,
         specializationId: s.specializationId,
         subscription: s.subscription,
-        pricePerHour: s.pricePerHour,
+        pricePerHour: s.subscription ? s.pricePerHour : 0, // If subscription is false, pricePerHour is 0
       }));
 
       // Insert and populate
@@ -44,7 +44,7 @@ export const createSpecialization: MutationResolvers["createSpecialization"] =
           specializationId: specId,
           categoryName: categoryName, // <-- This is only in the API response, not in the DB
           subscription: spec.subscription,
-          pricePerHour: spec.pricePerHour,
+          pricePerHour: spec.subscription ? spec.pricePerHour : 0, // If subscription is false, pricePerHour is 0
         };
       });
     } catch (error) {

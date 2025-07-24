@@ -13,6 +13,7 @@ export const chatRoomSchema = gql`
     participants: [String!]!
     appointmentId: String!
     allowedMedia: AllowedMediaEnum
+    lastMessage: Message
   }
 
   input CreateChatRoomInput {
@@ -31,6 +32,7 @@ export const chatRoomSchema = gql`
   type Query {
     getChatRoomById(_id: String!): ChatRoom
     getChatRoomsByAppointment(appointmentId: String!): [ChatRoom!]!
+    getChatRoomByUser(userId: String!): [ChatRoom!]!
   }
 
   type Mutation {

@@ -10,13 +10,21 @@ export const messageTypeDefs = gql`
 
   type Message {
     chatRoomId: ID!
+    ChatRoomsMessages: [ChatRoomsMessages!]!
+  }
+
+  type ChatRoomsMessages {
+    _id: ID!
     userId: String!
     type: MediaType!
-    content: String
+    content: String!
+    createdAt: String!
   }
+
   type Query {
     getMessages(chatRoomId: ID!): [Message!]!
   }
+
   type Mutation {
     createMessage(
       chatRoomId: ID!
@@ -24,8 +32,5 @@ export const messageTypeDefs = gql`
       type: MediaType!
       content: String
     ): Message
-  }
-  type Subscription {
-    messageAdded(chatRoomId: ID!): Message
   }
 `;
