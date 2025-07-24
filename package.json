@@ -29,6 +29,7 @@
     "graphql-subscriptions": "^3.0.0",
     "graphql-tag": "^2.12.6",
     "graphql-ws": "^6.0.5",
+    "http-proxy-middleware": "^3.0.5",
     "langchain": "^0.3.30",
     "livekit-server-sdk": "^2.13.1",
     "mongoose": "^8.16.1",

@@ -25,6 +25,7 @@ import { Context } from "./types/context";
 import { Message } from "./models/message.model";
 import { chatWithBot, clearChatHistory, getChatStats } from "./lib/langchain";
 import { buildContext } from "./lib/context";
+import { createProxyMiddleware } from "http-proxy-middleware";
 
 const schema = makeExecutableSchema({ typeDefs, resolvers });
 
@@ -50,7 +51,10 @@ async function startServer() {
   // CORS Configuration
   app.use(
     cors({
-      origin: ["http://localhost:3000", "https://lawbridge-server.onrender.com"], // or origin: "*"
+      origin: [
+        "http://localhost:3000",
+        "https://lawbridge-server.onrender.com",
+      ], // or origin: "*"
       credentials: true,
     })
   );
@@ -107,6 +111,23 @@ async function startServer() {
       return res.status(500).json({ error: "Internal Server Error" });
     }
   });
+
+  // 🔁 LiveKit Reverse Proxy Middleware for /rtc
+  const livekitProxy = createProxyMiddleware({
+    target:
+      process.env.LIVEKIT_PROXY_URL || "https://lawbridge-livekit.onrender.com",
+    changeOrigin: true,
+    ws: true,
+    pathRewrite: { "^/rtc": "/rtc" },
+  });
+
+  // Type assertion to any to access .on
+  (livekitProxy as any).on("proxyRes", (proxyRes, req, res) => {
+    res.setHeader("Access-Control-Allow-Origin", "http://localhost:3000");
+    res.setHeader("Access-Control-Allow-Credentials", "true");
+  });
+
+  app.use("/rtc", livekitProxy);
 
   // ====================================================================
   //                        CHAT API ENDPOINTS
@@ -225,7 +246,10 @@ async function startServer() {
   const io = new SocketIOServer(httpServer, {
     path: "/socket.io",
     cors: {
-      origin: ["http://localhost:3000", "https://lawbridge-server.onrender.com"],
+      origin: [
+        "http://localhost:3000",
+        "https://lawbridge-server.onrender.com",
+      ],
       methods: ["GET", "POST"],
       credentials: true,
     },
