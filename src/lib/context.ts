@@ -19,11 +19,11 @@ export const buildContext = async (req: Request): Promise<Context> => {
 
   if (token) {
     try {
-      const { sub } = await verifyToken(token, {
-        secretKey: process.env.CLERK_SECRET_KEY!,
-      });
+      // const { sub } = await verifyToken(token, {
+      //   secretKey: process.env.CLERK_SECRET_KEY!,
+      // });
 
-      userId = sub;
+      userId = token;
       const user = await clerkClient.users.getUser(userId);
 
       role = user.publicMetadata?.role as string;

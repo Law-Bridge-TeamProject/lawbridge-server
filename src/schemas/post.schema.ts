@@ -60,7 +60,7 @@ export const postTypeDefs = gql`
 
   type Query {
     getPosts: [Post!]!
-    getPostsByLawyer(lawyerId: String!): [Post!]!
+    getPostsByLawyer(lawyerId: ID!): [Post!]!
     getPostById(postId: ID!): Post
     getPostsBySpecializationId(specializationId: ID!): [Post!]!
     searchPosts(query: String!): [Post!]!
