@@ -13,7 +13,7 @@
   "description": "",
   "dependencies": {
     "@apollo/server": "^4.12.2",
-    "@clerk/backend": "^2.3.1",
+    "@clerk/backend": "^2.5.2",
     "@clerk/clerk-sdk-node": "^5.1.6",
     "@clerk/express": "^1.7.3",
     "@graphql-tools/schema": "^10.0.23",

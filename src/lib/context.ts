@@ -1,11 +1,15 @@
 import type { Request } from "express";
 import type { Context } from "@/types/context";
 import mongoose from "mongoose";
-import { clerkClient } from "@clerk/clerk-sdk-node";
+import { createClerkClient, verifyToken } from "@clerk/backend";
+
+const clerkClient = createClerkClient({
+  secretKey: process.env.CLERK_SECRET_KEY!,
+});
 
 export const buildContext = async (req: Request): Promise<Context> => {
-  const authHeader =
-    req.headers.authorization || "user_30Jk6mU8601mZbaTNVd3lE54gDg";
+  const authHeader = req.headers.authorization || "";
+  const token = authHeader.replace("Bearer ", "").trim();
 
   let userId: string | undefined;
   let clientId: string | undefined;
@@ -13,25 +17,34 @@ export const buildContext = async (req: Request): Promise<Context> => {
   let username: string | undefined;
   let role: string | undefined;
 
-  console.log({ authHeader });
+  if (token) {
+    try {
+      const { sub } = await verifyToken(token, {
+        secretKey: process.env.CLERK_SECRET_KEY!,
+      });
 
-  const user = await clerkClient.users.getUser(authHeader);
+      userId = sub;
+      const user = await clerkClient.users.getUser(userId);
 
-  role = user.publicMetadata?.role as string;
-  username = user.publicMetadata?.username as string;
+      role = user.publicMetadata?.role as string;
+      username = user.publicMetadata?.username as string;
 
-  console.log("👤 Decoded User ID:", authHeader);
-  console.log("📛 Username:", username);
-  console.log("🧑‍⚖️ Role:", role);
+      console.log("👤 Verified Clerk User ID:", userId);
+      console.log("📛 Username:", username);
+      console.log("🧑‍⚖️ Role:", role);
 
-  if (!role) {
-    console.warn("❓ Unknown or missing role in token.");
-  }
+      if (!role) {
+        console.warn("❓ Unknown or missing role in metadata.");
+      }
 
-  if (role === "user") {
-    userId = authHeader;
-  } else if (role === "lawyer") {
-    lawyerId = authHeader;
+      if (role === "user") {
+        clientId = userId;
+      } else if (role === "lawyer") {
+        lawyerId = userId;
+      }
+    } catch (err) {
+      console.error("❌ Token verification failed:", err);
+    }
   }
 
   return {
