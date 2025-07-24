@@ -50,7 +50,7 @@ async function startServer() {
   // CORS Configuration
   app.use(
     cors({
-      origin: true, // or origin: "*"
+      origin: "*", // or origin: "*"
       credentials: true,
     })
   );
