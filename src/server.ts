@@ -57,6 +57,7 @@ async function startServer() {
           "https://studio.apollographql.com/sandbox/explorer",
           "https://lawbridge-server.onrender.com",
           "https://lawbridge-deploy.vercel.app",
+          "https://lawbridge11.vercel.app",
         ];
         if (!origin || allowedOrigins.includes(origin)) {
           callback(null, true);
@@ -243,8 +244,8 @@ async function startServer() {
         "https://lawbridge-server.onrender.com",
         "https://studio.apollographql.com/sandbox/explorer",
         "https://lawbridge-deploy.vercel.app",
+        "https://lawbridge11.vercel.app/",
       ],
-
       methods: ["GET", "POST"],
       credentials: true,
     },
