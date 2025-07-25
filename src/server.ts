@@ -48,17 +48,24 @@ async function startServer() {
   const httpServer = createServer(app);
 
   // CORS Configuration
-  app.use(
-    cors({
-      origin: [
-        "*",
-        "http://localhost:3000",
-        "https://lawbridge-server.onrender.com",
-        "https://studio.apollographql.com/sandbox/explorer",
-      ], // or origin: "*"
-      credentials: true,
-    })
-  );
+ app.use(
+   cors({
+     origin: function (origin, callback) {
+       const allowedOrigins = [
+         "http://localhost:3000",
+         "https://studio.apollographql.com",
+         "https://studio.apollographql.com/sandbox/explorer",
+         "https://lawbridge-server.onrender.com",
+       ];
+       if (!origin || allowedOrigins.includes(origin)) {
+         callback(null, true);
+       } else {
+         callback(new Error("Not allowed by CORS"));
+       }
+     },
+     credentials: true,
+   })
+ );
   app.use(clerkMiddleware());
   app.use(express.json());
 
@@ -236,6 +243,7 @@ async function startServer() {
         "https://lawbridge-server.onrender.com",
         "https://studio.apollographql.com/sandbox/explorer",
       ],
+      
       methods: ["GET", "POST"],
       credentials: true,
     },
