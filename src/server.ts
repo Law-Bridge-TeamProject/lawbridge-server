@@ -54,6 +54,7 @@ async function startServer() {
         "*",
         "http://localhost:3000",
         "https://lawbridge-server.onrender.com",
+        "https://studio.apollographql.com/sandbox/explorer",
       ], // or origin: "*"
       credentials: true,
     })
@@ -230,8 +231,10 @@ async function startServer() {
     path: "/socket.io",
     cors: {
       origin: [
+        "*",
         "http://localhost:3000",
         "https://lawbridge-server.onrender.com",
+        "https://studio.apollographql.com/sandbox/explorer",
       ],
       methods: ["GET", "POST"],
       credentials: true,
