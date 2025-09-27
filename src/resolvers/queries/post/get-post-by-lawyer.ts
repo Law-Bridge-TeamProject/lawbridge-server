@@ -7,7 +7,8 @@ export const getPostsByLawyer: QueryResolvers["getPostsByLawyer"] = async (
 ) => {
   const posts = await Post.find({ lawyerId })
     .sort({ createdAt: -1 })
-    .populate("specialization");
+    .populate("specialization")
+    .populate("comments");
 
   return posts.map((post) => ({
     id: post._id.toString(),
@@ -31,6 +32,19 @@ export const getPostsByLawyer: QueryResolvers["getPostsByLawyer"] = async (
         };
       }),
     type: post.type as any, // Cast to MediaType if needed
+    comments: (post.comments || []).map((comment: any) => ({
+      _id: comment._id.toString(),
+      post: comment.post.toString(),
+      author: comment.author,
+      authorInfo: {
+        id: comment.author,
+        name: comment.author,
+        email: null,
+      },
+      content: comment.content,
+      createdAt: comment.createdAt,
+      updatedAt: comment.updatedAt,
+    })),
     createdAt: post.createdAt,
     updatedAt: post.updatedAt,
   }));
