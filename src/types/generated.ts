@@ -135,10 +135,18 @@ export type Comment = {
   __typename?: 'Comment';
   _id: Scalars['ID']['output'];
   author: Scalars['String']['output'];
+  authorInfo: CommentAuthorInfo;
   content: Scalars['String']['output'];
   createdAt: Scalars['Date']['output'];
   post: Scalars['ID']['output'];
   updatedAt: Scalars['Date']['output'];
+};
+
+export type CommentAuthorInfo = {
+  __typename?: 'CommentAuthorInfo';
+  email?: Maybe<Scalars['String']['output']>;
+  id: Scalars['String']['output'];
+  name: Scalars['String']['output'];
 };
 
 export type CreateAchievementInput = {
@@ -207,7 +215,7 @@ export type CreateReviewInput = {
 
 export type CreateSpecializationInput = {
   lawyerId?: InputMaybe<Scalars['ID']['input']>;
-  pricePerHour?: InputMaybe<Scalars['Int']['input']>;
+  pricePerHour: Scalars['Int']['input'];
   specializationId: Scalars['ID']['input'];
   subscription: Scalars['Boolean']['input'];
 };
@@ -251,6 +259,7 @@ export type Lawyer = {
   licenseNumber: Scalars['String']['output'];
   profilePicture: Scalars['String']['output'];
   rating?: Maybe<Scalars['Int']['output']>;
+  specialization: Array<Specialization>;
   status?: Maybe<LawyerRequestStatus>;
   university?: Maybe<Scalars['String']['output']>;
   updatedAt?: Maybe<Scalars['Date']['output']>;
@@ -397,7 +406,9 @@ export type MutationCreatePostArgs = {
 
 
 export type MutationCreateReviewArgs = {
+  clientId: Scalars['ID']['input'];
   input: CreateReviewInput;
+  lawyerId: Scalars['ID']['input'];
 };
 
 
@@ -532,6 +543,8 @@ export type NotificationsFilterInput = {
 export type Post = {
   __typename?: 'Post';
   _id: Scalars['ID']['output'];
+  author?: Maybe<PostAuthor>;
+  comments: Array<Comment>;
   content: PostContent;
   createdAt: Scalars['Date']['output'];
   id: Scalars['ID']['output'];
@@ -540,6 +553,17 @@ export type Post = {
   title: Scalars['String']['output'];
   type: MediaType;
   updatedAt?: Maybe<Scalars['Date']['output']>;
+};
+
+export type PostAuthor = {
+  __typename?: 'PostAuthor';
+  email?: Maybe<Scalars['String']['output']>;
+  firstName?: Maybe<Scalars['String']['output']>;
+  id: Scalars['ID']['output'];
+  lastName?: Maybe<Scalars['String']['output']>;
+  name?: Maybe<Scalars['String']['output']>;
+  profilePicture?: Maybe<Scalars['String']['output']>;
+  username?: Maybe<Scalars['String']['output']>;
 };
 
 export type PostContent = {
@@ -684,7 +708,7 @@ export type QueryGetPostByIdArgs = {
 
 
 export type QueryGetPostsByLawyerArgs = {
-  lawyerId: Scalars['String']['input'];
+  lawyerId: Scalars['ID']['input'];
 };
 
 
@@ -906,6 +930,7 @@ export type ResolversTypes = {
   ChatRoom: ResolverTypeWrapper<ChatRoom>;
   ChatRoomsMessages: ResolverTypeWrapper<ChatRoomsMessages>;
   Comment: ResolverTypeWrapper<Comment>;
+  CommentAuthorInfo: ResolverTypeWrapper<CommentAuthorInfo>;
   CreateAchievementInput: CreateAchievementInput;
   CreateAppointmentInput: CreateAppointmentInput;
   CreateChatRoomInput: CreateChatRoomInput;
@@ -935,6 +960,7 @@ export type ResolversTypes = {
   NotificationType: NotificationType;
   NotificationsFilterInput: NotificationsFilterInput;
   Post: ResolverTypeWrapper<Post>;
+  PostAuthor: ResolverTypeWrapper<PostAuthor>;
   PostContent: ResolverTypeWrapper<PostContent>;
   PostContentInput: PostContentInput;
   Query: ResolverTypeWrapper<{}>;
@@ -971,6 +997,7 @@ export type ResolversParentTypes = {
   ChatRoom: ChatRoom;
   ChatRoomsMessages: ChatRoomsMessages;
   Comment: Comment;
+  CommentAuthorInfo: CommentAuthorInfo;
   CreateAchievementInput: CreateAchievementInput;
   CreateAppointmentInput: CreateAppointmentInput;
   CreateChatRoomInput: CreateChatRoomInput;
@@ -996,6 +1023,7 @@ export type ResolversParentTypes = {
   Notification: Notification;
   NotificationsFilterInput: NotificationsFilterInput;
   Post: Post;
+  PostAuthor: PostAuthor;
   PostContent: PostContent;
   PostContentInput: PostContentInput;
   Query: {};
@@ -1099,10 +1127,18 @@ export type ChatRoomsMessagesResolvers<ContextType = Context, ParentType extends
 export type CommentResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Comment'] = ResolversParentTypes['Comment']> = {
   _id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   author?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  authorInfo?: Resolver<ResolversTypes['CommentAuthorInfo'], ParentType, ContextType>;
   content?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   createdAt?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
   post?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   updatedAt?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type CommentAuthorInfoResolvers<ContextType = Context, ParentType extends ResolversParentTypes['CommentAuthorInfo'] = ResolversParentTypes['CommentAuthorInfo']> = {
+  email?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -1142,6 +1178,7 @@ export type LawyerResolvers<ContextType = Context, ParentType extends ResolversP
   licenseNumber?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   profilePicture?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   rating?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  specialization?: Resolver<Array<ResolversTypes['Specialization']>, ParentType, ContextType>;
   status?: Resolver<Maybe<ResolversTypes['LawyerRequestStatus']>, ParentType, ContextType>;
   university?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   updatedAt?: Resolver<Maybe<ResolversTypes['Date']>, ParentType, ContextType>;
@@ -1167,7 +1204,7 @@ export type MutationResolvers<ContextType = Context, ParentType extends Resolver
   createMessage?: Resolver<Maybe<ResolversTypes['Message']>, ParentType, ContextType, RequireFields<MutationCreateMessageArgs, 'chatRoomId' | 'type' | 'userId'>>;
   createNotification?: Resolver<ResolversTypes['Notification'], ParentType, ContextType, RequireFields<MutationCreateNotificationArgs, 'input'>>;
   createPost?: Resolver<ResolversTypes['Post'], ParentType, ContextType, RequireFields<MutationCreatePostArgs, 'input'>>;
-  createReview?: Resolver<ResolversTypes['Review'], ParentType, ContextType, RequireFields<MutationCreateReviewArgs, 'input'>>;
+  createReview?: Resolver<ResolversTypes['Review'], ParentType, ContextType, RequireFields<MutationCreateReviewArgs, 'clientId' | 'input' | 'lawyerId'>>;
   createSpecialization?: Resolver<Array<Maybe<ResolversTypes['Specialization']>>, ParentType, ContextType, Partial<MutationCreateSpecializationArgs>>;
   deleteAchievement?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteAchievementArgs, 'id'>>;
   deleteComment?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteCommentArgs, 'input'>>;
@@ -1203,6 +1240,8 @@ export type NotificationResolvers<ContextType = Context, ParentType extends Reso
 
 export type PostResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Post'] = ResolversParentTypes['Post']> = {
   _id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  author?: Resolver<Maybe<ResolversTypes['PostAuthor']>, ParentType, ContextType>;
+  comments?: Resolver<Array<ResolversTypes['Comment']>, ParentType, ContextType>;
   content?: Resolver<ResolversTypes['PostContent'], ParentType, ContextType>;
   createdAt?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
@@ -1211,6 +1250,17 @@ export type PostResolvers<ContextType = Context, ParentType extends ResolversPar
   title?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   type?: Resolver<ResolversTypes['MediaType'], ParentType, ContextType>;
   updatedAt?: Resolver<Maybe<ResolversTypes['Date']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type PostAuthorResolvers<ContextType = Context, ParentType extends ResolversParentTypes['PostAuthor'] = ResolversParentTypes['PostAuthor']> = {
+  email?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  firstName?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  lastName?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  name?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  profilePicture?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  username?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -1287,6 +1337,7 @@ export type Resolvers<ContextType = Context> = {
   ChatRoom?: ChatRoomResolvers<ContextType>;
   ChatRoomsMessages?: ChatRoomsMessagesResolvers<ContextType>;
   Comment?: CommentResolvers<ContextType>;
+  CommentAuthorInfo?: CommentAuthorInfoResolvers<ContextType>;
   Date?: GraphQLScalarType;
   Document?: DocumentResolvers<ContextType>;
   JSON?: GraphQLScalarType;
@@ -1295,6 +1346,7 @@ export type Resolvers<ContextType = Context> = {
   Mutation?: MutationResolvers<ContextType>;
   Notification?: NotificationResolvers<ContextType>;
   Post?: PostResolvers<ContextType>;
+  PostAuthor?: PostAuthorResolvers<ContextType>;
   PostContent?: PostContentResolvers<ContextType>;
   Query?: QueryResolvers<ContextType>;
   Review?: ReviewResolvers<ContextType>;
