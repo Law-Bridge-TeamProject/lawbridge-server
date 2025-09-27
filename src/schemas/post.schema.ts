@@ -35,8 +35,20 @@ export const postTypeDefs = gql`
     content: PostContent! # <-- FIX: This now correctly uses the object type
     specialization: [AdminSpecialization!]!
     type: MediaType! # <-- CORRECT: This remains an enum
+    author: PostAuthor
+    comments: [Comment!]!
     createdAt: Date!
     updatedAt: Date
+  }
+
+  type PostAuthor {
+    id: ID!
+    firstName: String
+    lastName: String
+    name: String
+    username: String
+    email: String
+    profilePicture: String
   }
 
   input MediaInput {

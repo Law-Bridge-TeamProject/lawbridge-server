@@ -16,9 +16,10 @@ type PostSchemaType = {
     audio?: string;
   };
   specialization: Types.ObjectId[];
+  comments: Types.ObjectId[];
   type: Media;
   createdAt: Date;
-  updatedAt: Date;  
+  updatedAt: Date;
 };
 
 const PostSchema = new Schema<PostSchemaType>(
@@ -32,6 +33,7 @@ const PostSchema = new Schema<PostSchemaType>(
       audio: { type: String },
     },
     specialization: [{ type: Schema.Types.ObjectId, ref: "Specialization" }],
+    comments: [{ type: Schema.Types.ObjectId, ref: "Comment" }],
     type: {
       type: String,
       enum: Object.values(Media),
