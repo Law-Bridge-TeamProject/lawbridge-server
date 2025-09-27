@@ -12,12 +12,12 @@ export const getPosts: QueryResolvers["getPosts"] = async () => {
     .populate("specialization")
     .populate("comments");
 
-  // Fetch author information for each post
+  // Process posts with populated lawyer data
   const postsWithAuthors = await Promise.all(
     posts.map(async (post) => {
       let author = null;
+
       try {
-        // Fetch lawyer details from our database using lawyerId
         console.log(`🔍 Looking up lawyer with ID: ${post.lawyerId}`);
         const lawyer = await Lawyer.findOne({ lawyerId: post.lawyerId }).lean();
         console.log(
@@ -26,18 +26,7 @@ export const getPosts: QueryResolvers["getPosts"] = async () => {
         );
 
         if (lawyer) {
-          // Try to get profile picture from Clerk
-          let profilePicture = null;
-          try {
-            const clerkUser = await clerkClient.users.getUser(post.lawyerId);
-            profilePicture = clerkUser.imageUrl || null;
-          } catch (error) {
-            console.error(
-              `Failed to fetch profile picture for lawyer ${post.lawyerId}:`,
-              error
-            );
-          }
-
+          console.log(`🖼️ Lawyer profilePicture:`, lawyer.profilePicture);
           author = {
             id: lawyer.lawyerId,
             firstName: lawyer.firstName,
@@ -45,12 +34,13 @@ export const getPosts: QueryResolvers["getPosts"] = async () => {
             name: `${lawyer.firstName} ${lawyer.lastName}`,
             username: null,
             email: lawyer.email,
-            profilePicture,
+            profilePicture: lawyer.profilePicture || null,
           };
+          console.log(`👤 Author object:`, author);
         } else {
           // Fallback if lawyer not found in database
           author = {
-            id: post.lawyerId,
+            id: post.lawyerId || "unknown",
             firstName: null,
             lastName: null,
             name: "Өмгөөлөгч",
@@ -63,7 +53,7 @@ export const getPosts: QueryResolvers["getPosts"] = async () => {
         console.error(`Failed to fetch author for post ${post._id}:`, error);
         // Fallback author data
         author = {
-          id: post.lawyerId,
+          id: post.lawyerId || "unknown",
           firstName: null,
           lastName: null,
           name: "Өмгөөлөгч",
@@ -76,7 +66,7 @@ export const getPosts: QueryResolvers["getPosts"] = async () => {
       return {
         id: post._id.toString(),
         _id: post._id.toString(),
-        lawyerId: post.lawyerId,
+        lawyerId: post.lawyerId || "unknown",
         title: post.title,
         content: post.content,
         specialization: (post.specialization || []).map((s) => {

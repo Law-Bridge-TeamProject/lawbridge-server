@@ -105,6 +105,9 @@ async function startServer() {
   app.use(clerkMiddleware());
   app.use(express.json());
 
+  // Serve static files from uploads directory
+  app.use("/uploads", express.static("uploads"));
+
   // LiveKit Token Endpoint
   app.post("/api/livekit-token", async (req, res) => {
     console.log("[/api/livekit-token] Request received:", {
