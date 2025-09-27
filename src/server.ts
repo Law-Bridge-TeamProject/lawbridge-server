@@ -53,6 +53,17 @@ async function startServer() {
       origin: function (origin, callback) {
         const allowedOrigins = [
           "http://localhost:3000",
+          "http://localhost:3001",
+          "http://localhost:3002",
+          "http://localhost:3003",
+          "http://localhost:3004",
+          "http://localhost:3005",
+          "http://127.0.0.1:3000",
+          "http://127.0.0.1:3001",
+          "http://127.0.0.1:3002",
+          "http://127.0.0.1:3003",
+          "http://127.0.0.1:3004",
+          "http://127.0.0.1:3005",
           "https://studio.apollographql.com",
           "https://studio.apollographql.com/sandbox/explorer",
           "https://lawbridge-server.onrender.com",
@@ -68,11 +79,25 @@ async function startServer() {
           "https://lawbridge99.vercel.app",
           "https://lawbridge100.vercel.app",
         ];
-        if (!origin || allowedOrigins.includes(origin)) {
-          callback(null, true);
-        } else {
-          callback(new Error("Not allowed by CORS"));
+        // Allow requests with no origin (like mobile apps or curl requests)
+        if (!origin) {
+          return callback(null, true);
         }
+
+        // Check if origin is in allowed list
+        if (allowedOrigins.includes(origin)) {
+          return callback(null, true);
+        }
+
+        // Allow localhost with any port for development
+        if (
+          origin.match(/^https?:\/\/localhost:\d+$/) ||
+          origin.match(/^https?:\/\/127\.0\.0\.1:\d+$/)
+        ) {
+          return callback(null, true);
+        }
+
+        callback(new Error("Not allowed by CORS"));
       },
       credentials: true,
     })
@@ -250,6 +275,17 @@ async function startServer() {
     cors: {
       origin: [
         "http://localhost:3000",
+        "http://localhost:3001",
+        "http://localhost:3002",
+        "http://localhost:3003",
+        "http://localhost:3004",
+        "http://localhost:3005",
+        "http://127.0.0.1:3000",
+        "http://127.0.0.1:3001",
+        "http://127.0.0.1:3002",
+        "http://127.0.0.1:3003",
+        "http://127.0.0.1:3004",
+        "http://127.0.0.1:3005",
         "https://lawbridge-server.onrender.com",
         "https://studio.apollographql.com/sandbox/explorer",
         "https://lawbridge-deploy.vercel.app",
