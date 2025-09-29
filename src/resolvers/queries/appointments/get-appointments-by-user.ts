@@ -1,14 +1,14 @@
 import { Appointment } from "@/models";
 import { QueryResolvers, AppointmentStatus } from "@/types/generated";
 
-export const getAppointmentsByLawyer: QueryResolvers["getAppointmentsByLawyer"] =
-  async (_, { lawyerId }, context) => {
+export const getAppointmentsByUser: QueryResolvers["getAppointmentsByUser"] =
+  async (_, { clientId }, context) => {
     try {
-      if (!lawyerId) {
-        throw new Error("Lawyer ID is required");
+      if (!clientId) {
+        throw new Error("Client ID is required");
       }
 
-      const docs = await Appointment.find({ lawyerId }).populate(
+      const docs = await Appointment.find({ clientId }).populate(
         "specializationId"
       );
 
@@ -46,7 +46,7 @@ export const getAppointmentsByLawyer: QueryResolvers["getAppointmentsByLawyer"] 
         };
       });
     } catch (error) {
-      console.error("Error fetching appointments by lawyer:", error);
+      console.error("Error fetching appointments by user:", error);
       return [];
     }
   };
